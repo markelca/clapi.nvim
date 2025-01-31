@@ -20,11 +20,11 @@ Using lazy.nvim:
 After installation, you can use the picker with:
 
 ```vim
-:Telescope custom_picker
+:Telescope clapi
 ```
 
 Or in Lua:
 
 ```lua
-require('telescope').extensions.custom_picker.custom_picker()
+require('telescope').extensions.clapi.clapi()
 ```
