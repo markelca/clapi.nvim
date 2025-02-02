@@ -4,16 +4,13 @@ local conf = require("telescope.config").values
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local entry_display = require("telescope.pickers.entry_display")
+local treesitter = require("clapi.treesitter")
 
 local M = {}
 
 local builtin = function(opts)
 	opts = opts or {}
-	local results = {
-		{ name = "foo()", visibility = "public" },
-		{ name = "bar()", visibility = "protected" },
-		{ name = "fizz()", visibility = "private" },
-	}
+	local results = treesitter.search(0)
 
 	local picker_opts = {
 		prompt_title = "Complex Builtin",
@@ -23,7 +20,8 @@ local builtin = function(opts)
 				local displayer = entry_display.create({
 					separator = " ",
 					items = {
-						{ width = 10 },
+						{ width = 20 },
+						{ width = 20 },
 						{ remaining = true },
 					},
 				})
@@ -31,6 +29,7 @@ local builtin = function(opts)
 					return displayer({
 						{ entry.visibility },
 						{ entry.name },
+						{ entry.type },
 					})
 				end
 

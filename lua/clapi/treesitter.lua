@@ -1,58 +1,61 @@
-local function print_node(node)
-	local start_row, start_col, end_row, end_col = node:range()
-	print(string.format("Node type: %s, Range: (%d,%d)-(%d,%d)", node:type(), start_row, start_col, end_row, end_col))
-end
+local M = {}
 
----@param node TSNode
----@param source string|integer
----@param opts table|nil
-local get_node_text = function(node, source, opts)
-	return vim.treesitter.get_node_text(node, source, opts)
-end
+local queries = {
+	["php"] = vim.treesitter.query.parse(
+		"php",
+		[[
+			 (method_declaration
+			    (visibility_modifier) @visibility
+			    name: (name) @method_name
+			)
+			 (property_promotion_parameter
+			    visibility: (visibility_modifier) @visibility
+			    name: (variable_name) @prop_name
+			)
+		]]
+	),
+}
 
 ---@param buffer integer
----@param query vim.treesitter.Query
-local main = function(query, buffer)
+local search = function(buffer)
+	local filetype = vim.api.nvim_buf_get_option(0, "filetype")
+	local lang = vim.treesitter.language.get_lang(filetype) or filetype
+
+	if queries[lang] == nil then
+		local msg = string.format("Error: Language not supported (%s)", lang)
+		print(msg)
+		return {}
+	end
+
+	local query = queries[lang]
 	local parser = vim.treesitter.get_parser(buffer)
 	local tree = parser:parse()[1]
 	local root = tree:root()
 
-	for pattern, match, _ in query:iter_matches(root, buffer) do
-		local type = nil
-		local visibility = nil
-		local name = nil
+	local results = {}
+	for _, match, _ in query:iter_matches(root, buffer) do
 		local result = { name = nil, type = nil, visibility = nil }
 		for id, node in pairs(match) do
 			local capture_name = query.captures[id]
 			local text = vim.treesitter.get_node_text(node, buffer)
-			-- print(capture_name, text)
 
 			if capture_name == "method_name" then
-				type = "function"
-				name = text
+				result["type"] = "function"
+				result["name"] = text
 			elseif capture_name == "prop_name" then
-				type = "property"
-				name = text
+				result["type"] = "property"
+				result["name"] = text
 			elseif capture_name == "visibility" then
-				visibility = text
+				result["visibility"] = text
 			end
 		end
-		print(type .. " " .. name .. " " .. visibility)
+		table.insert(results, result)
 	end
+	return results
 end
 
-local query = vim.treesitter.query.parse(
-	"php",
-	[[
-	 (method_declaration
-            (visibility_modifier) @visibility
-            name: (name) @method_name
-        )
-	 (property_promotion_parameter
-            visibility: (visibility_modifier) @visibility
-            name: (variable_name) @prop_name
-        )
-	]]
-)
+M.search = search
 
-main(query, 9)
+-- local results = search(query, 7)
+-- print(vim.inspect(search_php(5)))
+return M
