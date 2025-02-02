@@ -12,25 +12,40 @@ end
 
 ---@param buffer integer
 ---@param query vim.treesitter.Query
-local prueba = function(query, buffer)
+local main = function(query, buffer)
 	local parser = vim.treesitter.get_parser(buffer)
 	local tree = parser:parse()[1]
 	local root = tree:root()
 
-	-- Execute the query
-	for id, node, _ in query:iter_captures(root, 0) do
-		local capture_name = query.captures[id]
-		local function_name = get_node_text(node, buffer)
-		-- local v = node:child(1)
-		print(capture_name, function_name)
+	for pattern, match, _ in query:iter_matches(root, buffer) do
+		local type = nil
+		local visibility = nil
+		local name = nil
+		local result = { name = nil, type = nil, visibility = nil }
+		for id, node in pairs(match) do
+			local capture_name = query.captures[id]
+			local text = vim.treesitter.get_node_text(node, buffer)
+			-- print(capture_name, text)
+
+			if capture_name == "method_name" then
+				type = "function"
+				name = text
+			elseif capture_name == "prop_name" then
+				type = "property"
+				name = text
+			elseif capture_name == "visibility" then
+				visibility = text
+			end
+		end
+		print(type .. " " .. name .. " " .. visibility)
 	end
 end
 
-local query_php = vim.treesitter.query.parse(
+local query = vim.treesitter.query.parse(
 	"php",
 	[[
 	 (method_declaration
-            (visibility_modifier)
+            (visibility_modifier) @visibility
             name: (name) @method_name
         )
 	 (property_promotion_parameter
@@ -40,4 +55,4 @@ local query_php = vim.treesitter.query.parse(
 	]]
 )
 
-prueba(query_php, 53)
+main(query, 9)
