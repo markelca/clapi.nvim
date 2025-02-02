@@ -5,6 +5,7 @@ local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local entry_display = require("telescope.pickers.entry_display")
 local treesitter = require("clapi.treesitter")
+local previewers = require("telescope.previewers")
 
 local M = {}
 
@@ -20,23 +21,26 @@ local builtin = function(opts)
 				local displayer = entry_display.create({
 					separator = " ",
 					items = {
-						{ width = 20 },
-						{ width = 20 },
+						{ width = 10 },
+						{ width = 10 },
 						{ remaining = true },
 					},
 				})
+
 				local make_display = function()
 					return displayer({
 						{ entry.visibility },
-						{ entry.name },
 						{ entry.type },
+						{ entry.name },
 					})
 				end
 
+				local searchable =
+					string.format("%s %s %s", entry.visibility or "", entry.type or "", entry.name or ""):lower()
 				return {
 					value = entry,
 					display = make_display,
-					ordinal = entry.name,
+					ordinal = searchable,
 					type = entry.type,
 				}
 			end,
@@ -53,11 +57,6 @@ local builtin = function(opts)
 			return true
 		end,
 	}
-
-	-- You might add previewer configuration
-	if opts.preview then
-		picker_opts.previewer = conf.file_previewer(opts)
-	end
 
 	-- Finally create the picker with all the configuration
 	return pickers.new(opts, picker_opts):find()

@@ -18,7 +18,7 @@ local queries = {
 
 ---@param buffer integer
 local search = function(buffer)
-	local filetype = vim.api.nvim_buf_get_option(0, "filetype")
+	local filetype = vim.api.nvim_buf_get_option(buffer, "filetype")
 	local lang = vim.treesitter.language.get_lang(filetype) or filetype
 
 	if queries[lang] == nil then
@@ -57,5 +57,5 @@ end
 M.search = search
 
 -- local results = search(query, 7)
--- print(vim.inspect(search_php(5)))
+-- print(vim.inspect(search(4)))
 return M
