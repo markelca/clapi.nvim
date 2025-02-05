@@ -1,3 +1,5 @@
+local utils = require("telescope.utils")
+
 local M = {}
 
 local queries = {
@@ -20,11 +22,14 @@ local queries = {
 local search = function(buffer)
 	local filetype = vim.api.nvim_buf_get_option(buffer, "filetype")
 	local lang = vim.treesitter.language.get_lang(filetype) or filetype
+	if lang == "" then
+		vim.notify("Error: No language detected", vim.log.levels.ERROR)
+		return
+	end
 
 	if queries[lang] == nil then
-		local msg = string.format("Error: Language not supported (%s)", lang)
-		print(msg)
-		return {}
+		vim.notify(string.format("Error: Language not supported (%s)", lang), vim.log.levels.ERROR)
+		return nil
 	end
 
 	local query = queries[lang]
