@@ -2,7 +2,7 @@
 
 A telescope.nvim extension that reveals a module's public interface.
 ![image](https://github.com/user-attachments/assets/404c4c20-f14b-4359-b5e7-bcfeed389130)
-🏗️ **Work In Progress**: The picture shows the desired state of the plugin, it's still not fully implemented.
+🏗️ **Work In Progress**: The picture example shows hardcoded values, it's still not fully implemented yet.
 
 ## Installation
 
