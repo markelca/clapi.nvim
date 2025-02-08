@@ -1,9 +1,8 @@
 # clapi.nvim
 
 A telescope.nvim extension that reveals a module's public interface.
-
-![image](https://github.com/user-attachments/assets/8949451d-0f1a-4b75-8983-6c48ddf25b4f)
-🏗️ **Work In Progress**: The picture shows the current state of the plugin, but it's still unfinished.
+![image](https://github.com/user-attachments/assets/404c4c20-f14b-4359-b5e7-bcfeed389130)
+🏗️ **Work In Progress**: The picture shows the desired state of the plugin, it's still not fully implemented.
 
 ## Installation
 
