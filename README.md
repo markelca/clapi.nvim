@@ -1,6 +1,6 @@
 # clapi.nvim
 
-A telescope.nvim extension that reveals a module's public interface.
+The 'LSP Document Symbols' picker from [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) doesn't include the items' visibility modifiers. This project reimplements that picker including them, so you can display and navigate the class/module interface easily.
 ![image](https://github.com/user-attachments/assets/404c4c20-f14b-4359-b5e7-bcfeed389130)
 🏗️ **Work In Progress**: The picture example shows hardcoded values, it's not fully implemented yet.
 
@@ -25,7 +25,7 @@ Optionally you can set up a keymap to run the picker:
 ```lua
 vim.keymap.set('n', '<leader>sa', require('clapi').builtin, { desc = '[S]earch [A]pi' })
 ```
-
+Full example in my nvim config repository: [nvim](https://github.com/MarkelCA/nvim/blob/master/lua/plugins/telescope.lua)
 ## Usage
 
 After installation, you can use the picker with:

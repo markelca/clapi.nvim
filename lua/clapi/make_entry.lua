@@ -1,3 +1,6 @@
+-- This module reimplements the telescope.make_entry functions
+-- to include the `visibility` column.
+
 local make_entry = require("telescope.make_entry")
 local utils = require("telescope.utils")
 local entry_display = require("telescope.pickers.entry_display")
