@@ -64,4 +64,22 @@ example.picker = function(opts)
 		:find()
 end
 
+example.ts = function(opts)
+	pickers
+		.new(opts, {
+			prompt_title = "Treesitter Symbols",
+			finder = finders.new_table({
+				results = results,
+				entry_maker = opts.entry_maker or make_entry.gen_from_treesitter(opts),
+			}),
+			previewer = conf.grep_previewer(opts),
+			sorter = conf.prefilter_sorter({
+				tag = "kind",
+				sorter = conf.generic_sorter(opts),
+			}),
+			push_cursor_on_edit = true,
+		})
+		:find()
+end
+
 example.picker({})
