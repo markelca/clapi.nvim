@@ -105,7 +105,6 @@ function M.gen_from_lsp_symbols(opts)
 			ordinal = filename .. " "
 		end
 		ordinal = ordinal .. entry.visibility .. symbol_name .. " " .. (symbol_type or "unknown")
-		vim.print(entry)
 		return make_entry.set_default_entry_mt({
 			value = entry,
 			ordinal = ordinal,
