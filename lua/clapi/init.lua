@@ -3,8 +3,12 @@ local finders = require("telescope.finders")
 local conf = require("telescope.config").values
 local entry_display = require("telescope.pickers.entry_display")
 local treesitter = require("clapi.treesitter")
+local finder_ts = require("clapi.finder_example_ts")
 
 local clapi = {}
+local clapi_v2 = {}
+
+clapi_v2.builtin = finder_ts.picker
 
 local searchable = function(entry)
 	local searchable = ""
@@ -57,4 +61,5 @@ clapi.builtin = function(opts)
 		:find()
 end
 
-return clapi
+-- return clapi
+return clapi_v2

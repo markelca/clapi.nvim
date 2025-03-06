@@ -7,9 +7,11 @@ local ts_v3 = require("clapi.ts_v3")
 -- Telescope functions end
 --------------------------------------------------------
 
-local example = {}
+local M = {}
 
-example.picker = function(opts)
+M.picker = function(opts)
+	opts = opts or {}
+	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
 
 	return pickers
@@ -30,4 +32,5 @@ example.picker = function(opts)
 		:find()
 end
 
-example.picker({ bufnr = 16 })
+-- example.picker({ bufnr = 16 })
+return M
