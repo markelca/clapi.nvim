@@ -2,23 +2,37 @@ local conf = require("telescope.config").values
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local make_entry = require("clapi.make_entry")
-local ts_v3 = require("clapi.ts_v3")
+local treesitter = require("clapi.treesitter_v2")
 --------------------------------------------------------
 -- Telescope functions end
 --------------------------------------------------------
+local php_query = [[
+    (method_declaration
+      (visibility_modifier) @visibility
+      name: (name) @method_name
+    )
+    (property_promotion_parameter
+      visibility: (visibility_modifier) @visibility
+      name: (variable_name) @prop_name
+    )
+  ]]
 
 local M = {}
 
-M.picker = function(opts)
+M.builtin = function(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
+	local results = treesitter.parse_file(opts.bufnr, php_query)
+	if not results then
+		return
+	end
 
 	return pickers
 		.new(opts, {
 			prompt_title = "LSP Document Symbols",
 			finder = finders.new_table({
-				results = ts_v3.parse_php_file(opts.bufnr),
+				results = results,
 				entry_maker = opts.entry_maker or make_entry.gen_from_lsp_symbols(opts),
 			}),
 			previewer = conf.qflist_previewer(opts),
@@ -32,5 +46,4 @@ M.picker = function(opts)
 		:find()
 end
 
--- example.picker({ bufnr = 16 })
 return M
