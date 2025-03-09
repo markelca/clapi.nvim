@@ -10,7 +10,7 @@ M.builtin = function(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
-	local results = treesitter.parse_file(opts.bufnr)
+	local results = treesitter.parse_file(opts)
 	if not results then
 		-- error message already printed inside the `parse_file` function
 		return

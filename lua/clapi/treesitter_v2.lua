@@ -1,14 +1,16 @@
 local utils = require("clapi.utils")
+local parsers = require("nvim-treesitter.parsers")
 -- Treesitter Parser Module
 local M = {}
 
 -- Parse a file using treesitter and extract actual data
-function M.parse_file(bufnr, query_str, filename, filetype)
-	bufnr = bufnr or 0
-	filename = filename or vim.api.nvim_buf_get_name(bufnr)
-	filetype = filetype or vim.bo.filetype
+function M.parse_file(opts)
+	-- bufnr, query_str, filename, filetype
+	opts.bufnr = opts.bufnr or 0
+	opts.filename = opts.filename or vim.api.nvim_buf_get_name(opts.bufnr)
+	opts.filetype = opts.filetype or vim.bo.filetype
 
-	if filetype == "" then
+	if opts.filetype == "" then
 		utils.notify("parse_file", {
 			msg = "No language detected",
 			level = "ERROR",
@@ -16,36 +18,41 @@ function M.parse_file(bufnr, query_str, filename, filetype)
 		return
 	end
 
-	query_str = query_str or M.get_full_query(filetype)
+	opts.query_str = opts.query_str or M.get_full_query(opts.filetype)
 
-	if not query_str then
+	if not opts.query_str then
 		utils.notify("parse_file", {
-			msg = string.format("Language not supported (%s)", filetype),
+			msg = string.format("Language not supported (%s)", opts.filetype),
 			level = "ERROR",
 		})
 		return
 	end
 
 	-- Ensure buffer is loaded
-	if not vim.api.nvim_buf_is_loaded(bufnr) and vim.fn.filereadable(filename) == 1 then
-		vim.fn.bufload(bufnr)
+	if not vim.api.nvim_buf_is_loaded(opts.bufnr) and vim.fn.filereadable(opts.filename) == 1 then
+		vim.fn.bufload(opts.bufnr)
 	end
 
 	-- Load the treesitter parser for the language
-	local parser = vim.treesitter.get_parser(bufnr, filetype)
+	local treesitter_filetype = parsers.get_buf_lang(opts.bufnr)
+	local parser = vim.treesitter.get_parser(opts.bufnr, treesitter_filetype)
 	if not parser then
-		error(string.format("Failed to load %s parser for buffer %s", filetype, bufnr))
-		return {}
+		utils.notify("builtin.treesitter", {
+			msg = "No parser for the current buffer",
+			level = "ERROR",
+		})
+		return
 	end
 
 	-- Parse the query
-	local query = vim.treesitter.query.parse(filetype, query_str)
+	local query = vim.treesitter.query.parse(opts.filetype, opts.query_str)
 	if not query then
 		error("Failed to parse query")
 		return {}
 	end
 
 	-- Parse the content
+	-- TODO: nil check
 	local tree = parser:parse()[1]
 	if not tree then
 		error("Failed to parse buffer content")
@@ -61,9 +68,9 @@ function M.parse_file(bufnr, query_str, filename, filetype)
 	local visibilities = {}
 
 	-- First pass - collect all captures
-	for id, node, metadata in query:iter_captures(root, bufnr) do
+	for id, node, metadata in query:iter_captures(root, opts.bufnr) do
 		local capture_name = query.captures[id]
-		local text = vim.treesitter.get_node_text(node, bufnr)
+		local text = vim.treesitter.get_node_text(node, opts.bufnr)
 		local start_row, start_col, _, _ = node:range()
 
 		if capture_name == "method_name" then
@@ -106,7 +113,7 @@ function M.parse_file(bufnr, query_str, filename, filetype)
 
 		table.insert(result, {
 			col = method.col,
-			filename = filename,
+			filename = opts.filename,
 			visibility = visibility,
 			kind = "Method",
 			lnum = method.row,
@@ -141,7 +148,7 @@ function M.parse_file(bufnr, query_str, filename, filetype)
 
 		table.insert(result, {
 			col = prop.col,
-			filename = filename,
+			filename = opts.filename,
 			visibility = visibility,
 			kind = "Property",
 			lnum = prop.row,
@@ -176,37 +183,6 @@ end
 function M.get_full_query(lang)
 	local fullpath = M.runtime_queries(lang)[1]
 	return read_file(fullpath)
-end
-
--- Generate output as a lookupable table
-function M.get_symbols(bufnr, query_str)
-	bufnr = bufnr or 0
-	query_str = query_str or M.get_full_query()
-
-	vim.print("1111")
-
-	local filename = vim.api.nvim_buf_get_name(bufnr)
-	local entries = M.parse_file(bufnr, query_str, filename)
-
-	-- Organize by kind for easy lookup
-	local by_kind = {}
-	for _, entry in ipairs(entries) do
-		by_kind[entry.kind] = by_kind[entry.kind] or {}
-		table.insert(by_kind[entry.kind], entry)
-	end
-
-	-- Organize by line number
-	local by_line = {}
-	for _, entry in ipairs(entries) do
-		by_line[entry.lnum] = by_line[entry.lnum] or {}
-		table.insert(by_line[entry.lnum], entry)
-	end
-
-	return {
-		all = entries,
-		by_kind = by_kind,
-		by_line = by_line,
-	}
 end
 
 return M
