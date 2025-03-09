@@ -23,7 +23,7 @@ M.builtin = function(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
-	local results = treesitter.parse_file(opts.bufnr, php_query)
+	local results = treesitter.parse_file(opts.bufnr)
 	if not results then
 		return
 	end

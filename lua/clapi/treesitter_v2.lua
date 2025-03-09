@@ -8,9 +8,20 @@ function M.parse_file(bufnr, query_str, filename)
 	bufnr = bufnr or 0
 	filename = filename or vim.api.nvim_buf_get_name(bufnr)
 
+	local filetype = vim.bo.filetype
+	if filetype == "" then
+		utils.notify("parse_file", {
+			msg = "No language detected",
+			level = "ERROR",
+		})
+		return
+	end
+
+	query_str = query_str or M.get_full_query(filetype)
+
 	if not query_str then
-		utils.notify("treesitter_v2.parse_php_file", {
-			msg = "No query provided",
+		utils.notify("parse_file", {
+			msg = string.format("Language not supported (%s)", filetype),
 			level = "ERROR",
 		})
 		return
@@ -142,36 +153,38 @@ function M.parse_file(bufnr, query_str, filename)
 	return result
 end
 
--- Utility function to generate a more complex query with additional node types
-function M.get_full_query()
-	return [[
-    (method_declaration
-      (visibility_modifier) @visibility
-      name: (name) @method_name
-    )
-    (property_promotion_parameter
-      visibility: (visibility_modifier) @visibility
-      name: (variable_name) @prop_name
-    )
-    (namespace_definition
-      name: (qualified_name) @namespace_name
-    )
-    (class_declaration
-      name: (name) @class_name
-    )
-    (property_declaration
-      (visibility_modifier) @visibility
-      (property_element
-        name: (variable_name) @prop_name
-      )
-    )
-  ]]
+---@param lang string
+---@return string[]
+function M.runtime_queries(lang)
+	return vim.api.nvim_get_runtime_file(string.format("queries/%s.scm", lang), true)
+end
+
+-- Method 2: Using Neovim's API (preferred for Neovim plugins)
+local function read_file(path)
+	-- Check if the file exists
+	if vim.fn.filereadable(path) == 0 then
+		return nil
+	end
+
+	-- Read the file into a table where each line is an element
+	local lines = vim.fn.readfile(path)
+
+	-- Join the lines with newline characters
+	local content = table.concat(lines, "\n")
+	return content
+end
+
+function M.get_full_query(lang)
+	local fullpath = M.runtime_queries(lang)[1]
+	return read_file(fullpath)
 end
 
 -- Generate output as a lookupable table
 function M.get_symbols(bufnr, query_str)
 	bufnr = bufnr or 0
 	query_str = query_str or M.get_full_query()
+
+	vim.print("1111")
 
 	local filename = vim.api.nvim_buf_get_name(bufnr)
 	local entries = M.parse_file(bufnr, query_str, filename)

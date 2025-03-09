@@ -1,2 +1,4 @@
-local ts = require("clapi.finder_v2")
-ts.builtin({ bufnr = 10 })
+local finder = require("clapi.finder_v2")
+local ts = require("clapi.treesitter_v2")
+-- local
+-- finder.builtin({ bufnr = 10 })
