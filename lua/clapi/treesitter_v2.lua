@@ -1,14 +1,13 @@
 local utils = require("clapi.utils")
--- PHP Treesitter Parser Module
+-- Treesitter Parser Module
 local M = {}
 
--- Parse a PHP file using treesitter and extract actual data
-function M.parse_file(bufnr, query_str, filename)
-	-- Default buffer number if not provided
+-- Parse a file using treesitter and extract actual data
+function M.parse_file(bufnr, query_str, filename, filetype)
 	bufnr = bufnr or 0
 	filename = filename or vim.api.nvim_buf_get_name(bufnr)
+	filetype = filetype or vim.bo.filetype
 
-	local filetype = vim.bo.filetype
 	if filetype == "" then
 		utils.notify("parse_file", {
 			msg = "No language detected",
@@ -32,15 +31,15 @@ function M.parse_file(bufnr, query_str, filename)
 		vim.fn.bufload(bufnr)
 	end
 
-	-- Load the treesitter parser for PHP
-	local parser = vim.treesitter.get_parser(bufnr, "php")
+	-- Load the treesitter parser for the language
+	local parser = vim.treesitter.get_parser(bufnr, filetype)
 	if not parser then
-		error("Failed to load PHP parser for buffer " .. bufnr)
+		error(string.format("Failed to load %s parser for buffer %s", filetype, bufnr))
 		return {}
 	end
 
 	-- Parse the query
-	local query = vim.treesitter.query.parse("php", query_str)
+	local query = vim.treesitter.query.parse(filetype, query_str)
 	if not query then
 		error("Failed to parse query")
 		return {}
@@ -209,7 +208,5 @@ function M.get_symbols(bufnr, query_str)
 		by_line = by_line,
 	}
 end
-
--- local symbols = M.parse_php_file(27)
 
 return M
