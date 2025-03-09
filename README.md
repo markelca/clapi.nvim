@@ -1,8 +1,7 @@
 # clapi.nvim
 
-The 'LSP Document Symbols' picker from [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) doesn't include the items' visibility modifiers. This project reimplements that picker including them, so you can display and navigate the class/module interface easily.
-![image](https://github.com/user-attachments/assets/404c4c20-f14b-4359-b5e7-bcfeed389130)
-🏗️ **Work In Progress**: The picture example shows hardcoded values, it's not fully implemented yet.
+The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers to show document symbols don't include the items' visibility modifiers. This extension provides a picker including them, so you can display and navigate the class/module interface easily.
+![image](https://github.com/user-attachments/assets/f0de3756-5c90-45a1-8e6c-73a32471ab9d)
 
 ## Installation
 
