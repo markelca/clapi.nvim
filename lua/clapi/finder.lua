@@ -1,58 +1,35 @@
-local pickers = require("telescope.pickers")
-local finders = require("telescope.finders")
 local conf = require("telescope.config").values
-local entry_display = require("telescope.pickers.entry_display")
+local finders = require("telescope.finders")
+local pickers = require("telescope.pickers")
+local make_entry = require("clapi.make_entry")
 local treesitter = require("clapi.treesitter")
 
 local M = {}
 
-local searchable = function(entry)
-	local searchable = ""
-	for _, value in pairs(entry) do
-		searchable = searchable .. value
-	end
-	return searchable
-end
-
 M.builtin = function(opts)
 	opts = opts or {}
-	local results = treesitter.search(0)
-	if results == nil then
+	opts.bufnr = opts.bufnr or 0
+	opts.path_display = { "hidden" }
+	local results = treesitter.parse_file(opts)
+	if not results then
+		-- error message already printed inside the `parse_file` function
 		return
 	end
 
-	pickers
+	return pickers
 		.new(opts, {
-			prompt_title = "Document Symbols",
+			prompt_title = "Module Interface",
 			finder = finders.new_table({
 				results = results,
-				entry_maker = function(entry)
-					local displayer = entry_display.create({
-						separator = " ",
-						items = {
-							{ width = 10 },
-							{ width = 10 },
-							{ remaining = true },
-						},
-					})
-
-					local make_display = function()
-						return displayer({
-							{ entry.visibility },
-							{ entry.type },
-							{ entry.name },
-						})
-					end
-
-					return {
-						value = entry,
-						display = make_display,
-						ordinal = searchable(entry),
-						type = entry.type,
-					}
-				end,
+				entry_maker = opts.entry_maker or make_entry.gen_from_lsp_symbols(opts),
 			}),
-			sorter = conf.generic_sorter(opts),
+			previewer = conf.qflist_previewer(opts),
+			sorter = conf.prefilter_sorter({
+				tag = "symbol_type",
+				sorter = conf.generic_sorter(opts),
+			}),
+			push_cursor_on_edit = true,
+			push_tagstack_on_edit = true,
 		})
 		:find()
 end
