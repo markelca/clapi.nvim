@@ -3,11 +3,11 @@ local parsers = require("nvim-treesitter.parsers")
 -- Treesitter Parser Module
 local M = {}
 
--- Parse a file using treesitter and extract actual data
+---@param opts table
 function M.parse_file(opts)
 	opts.bufnr = opts.bufnr or 0
 	opts.filename = opts.filename or vim.api.nvim_buf_get_name(opts.bufnr)
-	opts.filetype = opts.filetype or vim.bo.filetype
+	opts.filetype = opts.filetype or vim.bo[opts.bufnr].filetype
 
 	if opts.filetype == "" then
 		utils.notify("parse_file", {
@@ -17,7 +17,7 @@ function M.parse_file(opts)
 		return
 	end
 
-	opts.query_str = opts.query_str or M.get_full_query(opts.filetype)
+	opts.query_str = opts.query_str or M.get_query(opts.filetype, "locals")
 
 	if not opts.query_str then
 		utils.notify("parse_file", {
@@ -167,15 +167,18 @@ function M.parse_file(opts)
 end
 
 ---@param lang string
----@return string[]
-function M.runtime_queries(lang)
-	return vim.api.nvim_get_runtime_file(string.format("queries/%s.scm", lang), true)
-end
-
-function M.get_full_query(lang)
+---@param query_group string
+function M.get_query(lang, query_group)
 	-- TODO: nil check
-	local fullpath = M.runtime_queries(lang)[1]
-	return utils.read_file(fullpath)
+	--
+	local results = vim.api.nvim_get_runtime_file(string.format("queries/%s/%s.scm", lang, query_group), true)
+	for i, value in ipairs(results) do
+		if string.find(value, "clapi") then
+			local fullpath = results[i]
+			return utils.read_file(fullpath)
+		end
+	end
+	return nil
 end
 
 return M

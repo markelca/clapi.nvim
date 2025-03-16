@@ -28,4 +28,5 @@ function utils.read_file(path)
 	local content = table.concat(lines, "\n")
 	return content
 end
+
 return utils
