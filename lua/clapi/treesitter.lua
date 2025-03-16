@@ -5,9 +5,26 @@ local M = {}
 
 ---@param opts table
 function M.parse_file(opts)
-	opts.bufnr = opts.bufnr or 0
-	opts.filename = opts.filename or vim.api.nvim_buf_get_name(opts.bufnr)
-	opts.filetype = opts.filetype or vim.bo[opts.bufnr].filetype
+	if opts.filename and opts.bufnr then
+		utils.notify("parse_file", {
+			msg = "filename and bufnr params can't be used at the same time",
+			level = "ERROR",
+		})
+		return
+	end
+
+	vim.print(opts.filename)
+	if opts.filename then
+		opts.bufnr = vim.fn.bufadd(opts.filename)
+	end
+	-- vim.print(x, opts.bufnr)
+
+	if opts.bufnr then
+		opts.filename = vim.api.nvim_buf_get_name(opts.bufnr)
+	end
+
+	-- opts.bufnr = opts.bufnr or 0
+	opts.filetype = opts.filetype or utils.get_file_extension(opts.filename)
 
 	if opts.filetype == "" then
 		utils.notify("parse_file", {
@@ -163,6 +180,12 @@ function M.parse_file(opts)
 		})
 	end
 
+	-- FIX: Add parent class definitions to the result table
+	-- local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
+	-- for key, value in pairs(parent_defs) do
+	-- 	table.insert(result, value)
+	-- end
+	--
 	return result
 end
 
@@ -179,6 +202,97 @@ function M.get_query(lang, query_group)
 		end
 	end
 	return nil
+end
+--------------------------
+--- Parent functions
+--------------------------
+--- Gets the full filepath given the position of an element in the file
+---@param opts table
+function M.get_file_from_position(opts)
+	opts = opts or {}
+	opts.bufnr = opts.bufnr or 0
+
+	if not opts.position then
+		error("Need to provide a position")
+		return
+	end
+
+	-- TODO: use callback instead of sync function
+	local results = vim.lsp.buf_request_sync(opts.bufnr, "textDocument/definition", {
+		position = opts.position,
+		textDocument = {
+			uri = string.format("file://%s", vim.api.nvim_buf_get_name(opts.bufnr)),
+		},
+	}, 1000)
+
+	for _, x in pairs(results) do
+		if x.result then
+			for _, symbol in ipairs(x.result) do
+				local uri = symbol.targetUri
+				if uri then
+					return uri:gsub("file://", "")
+				end
+			end
+		end
+	end
+end
+
+---@param opts table
+function M.get_parent_file(opts)
+	opts = opts or {}
+	opts.bufnr = opts.bufnr or 0
+
+	local filetype = parsers.get_buf_lang(opts.bufnr)
+	local parser = vim.treesitter.get_parser(opts.bufnr, filetype)
+	if not parser then
+		-- TODO: replate for utils.notify
+		error("No parser for the current buffer")
+		return
+	end
+
+	-- Parse the query
+	-- WARNING: might have to use vim.bo.filetype instead of treesitter filetype
+	local query_str = M.get_query(filetype, "parent")
+	if not query_str then
+		error("Couldn't find the query")
+	end
+
+	local query = vim.treesitter.query.parse(filetype, query_str)
+
+	if not query then
+		error("Failed to parse the query")
+		return {}
+	end
+
+	-- Parse the content
+	-- TODO: nil check
+	local tree = parser:parse()
+	if not tree then
+		error("Failed to parse the buffer content")
+		return
+	end
+
+	tree = tree[1]
+
+	local root = tree:root()
+
+	local result = {}
+
+	for id, node, metadata in query:iter_captures(root, opts.bufnr) do
+		local capture_name = query.captures[id]
+		if capture_name == "parent" then
+			local line, char = node:start()
+
+			local p = M.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
+			local defs = M.parse_file({ filename = p })
+			for _, value in pairs(defs) do
+				if value["visibility"] ~= "private" then
+					table.insert(result, value)
+				end
+			end
+		end
+	end
+	return result
 end
 
 return M

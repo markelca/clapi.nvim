@@ -29,4 +29,17 @@ function utils.read_file(path)
 	return content
 end
 
+---@param filepath string
+function utils.get_file_extension(filepath)
+	-- Find the last dot position
+	local lastDotIndex = filepath:match("^.+()%.%w+$")
+
+	-- If a dot was found, return everything after it
+	if lastDotIndex then
+		return filepath:sub(lastDotIndex + 1)
+	else
+		return nil
+	end
+end
+
 return utils
