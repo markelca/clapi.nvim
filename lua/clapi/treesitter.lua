@@ -13,18 +13,25 @@ function M.parse_file(opts)
 		return
 	end
 
-	vim.print(opts.filename)
 	if opts.filename then
 		opts.bufnr = vim.fn.bufadd(opts.filename)
 	end
-	-- vim.print(x, opts.bufnr)
 
 	if opts.bufnr then
 		opts.filename = vim.api.nvim_buf_get_name(opts.bufnr)
 	end
 
-	-- opts.bufnr = opts.bufnr or 0
-	opts.filetype = opts.filetype or utils.get_file_extension(opts.filename)
+	if not opts.filetype then
+		local filetype = utils.get_file_extension(opts.filename)
+		if not filetype then
+			utils.notify("parse_file", {
+				msg = "Couldn't get the file extension",
+				level = "ERROR",
+			})
+			return
+		end
+		opts.filetype = filetype
+	end
 
 	if opts.filetype == "" then
 		utils.notify("parse_file", {
@@ -181,11 +188,15 @@ function M.parse_file(opts)
 	end
 
 	-- FIX: Add parent class definitions to the result table
-	-- local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
-	-- for key, value in pairs(parent_defs) do
-	-- 	table.insert(result, value)
-	-- end
-	--
+	local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
+	if not parent_defs then
+		-- error already printed somewhere
+		return
+	end
+	for key, value in pairs(parent_defs) do
+		table.insert(result, value)
+	end
+
 	return result
 end
 
@@ -224,6 +235,14 @@ function M.get_file_from_position(opts)
 			uri = string.format("file://%s", vim.api.nvim_buf_get_name(opts.bufnr)),
 		},
 	}, 1000)
+
+	if not results then
+		utils.notify("get_parent_file", {
+			msg = "Couldn't get the file for the parent class",
+			level = "ERROR",
+		})
+		return
+	end
 
 	for _, x in pairs(results) do
 		if x.result then
@@ -284,6 +303,10 @@ function M.get_parent_file(opts)
 			local line, char = node:start()
 
 			local p = M.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
+			if not p or p == "" then
+				-- error already printed in get_file_from_position
+				return
+			end
 			local defs = M.parse_file({ filename = p })
 			for _, value in pairs(defs) do
 				if value["visibility"] ~= "private" then
