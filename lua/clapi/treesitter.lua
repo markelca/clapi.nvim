@@ -187,7 +187,6 @@ function M.parse_file(opts)
 		})
 	end
 
-	-- FIX: Add parent class definitions to the result table
 	local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
 	if not parent_defs then
 		-- error already printed somewhere
@@ -249,6 +248,7 @@ function M.get_file_from_position(opts)
 
 	for _, x in pairs(results) do
 		if x.result then
+			-- FIX: the uri attribute depends on the LSP, fix
 			local uri = x.result.uri
 			if uri then
 				return uri:gsub("file://", "")
