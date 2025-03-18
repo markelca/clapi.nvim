@@ -191,7 +191,7 @@ function M.parse_file(opts)
 	local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
 	if not parent_defs then
 		-- error already printed somewhere
-		return
+		return result
 	end
 	for key, value in pairs(parent_defs) do
 		table.insert(result, value)
@@ -224,7 +224,10 @@ function M.get_file_from_position(opts)
 	opts.bufnr = opts.bufnr or 0
 
 	if not opts.position then
-		error("Need to provide a position")
+		utils.notify("get_file_from_position", {
+			msg = "Position not provided",
+			level = "ERROR",
+		})
 		return
 	end
 
@@ -246,11 +249,9 @@ function M.get_file_from_position(opts)
 
 	for _, x in pairs(results) do
 		if x.result then
-			for _, symbol in ipairs(x.result) do
-				local uri = symbol.targetUri
-				if uri then
-					return uri:gsub("file://", "")
-				end
+			local uri = x.result.uri
+			if uri then
+				return uri:gsub("file://", "")
 			end
 		end
 	end
@@ -264,8 +265,10 @@ function M.get_parent_file(opts)
 	local filetype = parsers.get_buf_lang(opts.bufnr)
 	local parser = vim.treesitter.get_parser(opts.bufnr, filetype)
 	if not parser then
-		-- TODO: replate for utils.notify
-		error("No parser for the current buffer")
+		utils.notify("get_parent_file", {
+			msg = "No parser for the current buffer",
+			level = "ERROR",
+		})
 		return
 	end
 
@@ -273,21 +276,31 @@ function M.get_parent_file(opts)
 	-- WARNING: might have to use vim.bo.filetype instead of treesitter filetype
 	local query_str = M.get_query(filetype, "parent")
 	if not query_str then
-		error("Couldn't find the query")
+		utils.notify("get_parent_file", {
+			msg = string.format("Language not supported (%s)", filetype),
+			level = "ERROR",
+		})
+		return
 	end
 
 	local query = vim.treesitter.query.parse(filetype, query_str)
 
 	if not query then
-		error("Failed to parse the query")
-		return {}
+		utils.notify("get_parent_file", {
+			msg = "Failed to parse query",
+			level = "ERROR",
+		})
+		return
 	end
 
 	-- Parse the content
 	-- TODO: nil check
 	local tree = parser:parse()
 	if not tree then
-		error("Failed to parse the buffer content")
+		utils.notify("get_parent_file", {
+			msg = "Failed to parse buffer content",
+			level = "ERROR",
+		})
 		return
 	end
 
