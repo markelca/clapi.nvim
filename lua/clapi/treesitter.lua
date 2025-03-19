@@ -247,12 +247,27 @@ function M.get_file_from_position(opts)
 	end
 
 	for _, x in pairs(results) do
-		if x.result then
-			-- FIX: the uri attribute depends on the LSP, fix
-			local uri = x.result.uri
-			if uri then
-				return uri:gsub("file://", "")
+		-- Handle different LSP response formats
+		local uri
+		local result = x.result
+
+		-- Handle array of results (typical for "textDocument/definition")
+		if type(result) == "table" and result[1] ~= nil then
+			if result[1].uri then
+				uri = result[1].uri
+			elseif result[1].targetUri then
+				uri = result[1].targetUri
 			end
+		-- Handle single result
+		elseif type(result) == "table" and result.uri then
+			uri = result.uri
+		-- Handle phpactor-style nested result
+		elseif type(result) == "table" and result.result and result.result.uri then
+			uri = result.result.uri
+		end
+
+		if uri then
+			return uri:gsub("file://", "")
 		end
 	end
 end
