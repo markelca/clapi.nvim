@@ -1,16 +1,17 @@
 local utils = require("clapi.utils")
 local parsers = require("nvim-treesitter.parsers")
+local async = require("plenary.async")
 -- Treesitter Parser Module
 local M = {}
 
 ---@param opts table
-function M.parse_file(opts)
+M.parse_file = async.wrap(function(opts, callback)
 	if opts.filename and opts.bufnr then
 		utils.notify("parse_file", {
 			msg = "filename and bufnr params can't be used at the same time",
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	if opts.filename then
@@ -28,7 +29,7 @@ function M.parse_file(opts)
 				msg = "Couldn't get the file extension",
 				level = "ERROR",
 			})
-			return
+			callback(nil)
 		end
 		opts.filetype = filetype
 	end
@@ -38,7 +39,7 @@ function M.parse_file(opts)
 			msg = "No language detected",
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	opts.query_str = opts.query_str or M.get_query(opts.filetype, "locals")
@@ -48,7 +49,7 @@ function M.parse_file(opts)
 			msg = string.format("Language not supported (%s)", opts.filetype),
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	-- Ensure buffer is loaded
@@ -64,7 +65,7 @@ function M.parse_file(opts)
 			msg = "No parser for the current buffer",
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	-- Parse the query
@@ -74,7 +75,7 @@ function M.parse_file(opts)
 			msg = "Failed to parse query",
 			level = "ERROR",
 		})
-		return {}
+		callback(nil)
 	end
 
 	-- Parse the content
@@ -85,7 +86,7 @@ function M.parse_file(opts)
 			msg = "Failed to parse buffer content",
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	tree = tree[1]
@@ -187,17 +188,19 @@ function M.parse_file(opts)
 		})
 	end
 
-	local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
-	if not parent_defs then
-		-- error already printed somewhere
-		return result
-	end
-	for key, value in pairs(parent_defs) do
-		table.insert(result, value)
-	end
+	async.run(function()
+		local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
+		if not parent_defs then
+			-- error already printed somewhere
+			callback(result)
+		end
+		for key, value in pairs(parent_defs) do
+			table.insert(result, value)
+		end
 
-	return result
-end
+		callback(result)
+	end)
+end, 2)
 
 ---@param lang string
 ---@param query_group string
@@ -217,8 +220,9 @@ end
 --- Parent functions
 --------------------------
 --- Gets the full filepath given the position of an element in the file
+
 ---@param opts table
-function M.get_file_from_position(opts)
+M.get_file_from_position = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
 
@@ -227,53 +231,55 @@ function M.get_file_from_position(opts)
 			msg = "Position not provided",
 			level = "ERROR",
 		})
+		callback(nil)
 		return
 	end
 
-	-- TODO: use callback instead of sync function
-	local results = vim.lsp.buf_request_sync(opts.bufnr, "textDocument/definition", {
+	vim.lsp.buf_request(opts.bufnr, "textDocument/definition", {
 		position = opts.position,
 		textDocument = {
 			uri = string.format("file://%s", vim.api.nvim_buf_get_name(opts.bufnr)),
 		},
-	}, 1000)
+	}, function(err, result, _, _)
+		if err or not result then
+			utils.notify("get_parent_file", {
+				msg = "Couldn't get the file for the parent class",
+				level = "ERROR",
+			})
+			callback(nil)
+			return
+		end
 
-	if not results then
-		utils.notify("get_parent_file", {
-			msg = "Couldn't get the file for the parent class",
-			level = "ERROR",
-		})
-		return
-	end
-
-	for _, x in pairs(results) do
-		-- Handle different LSP response formats
-		local uri
-		local result = x.result
-
-		-- Handle array of results (typical for "textDocument/definition")
-		if type(result) == "table" and result[1] ~= nil then
-			if result[1].uri then
-				uri = result[1].uri
-			elseif result[1].targetUri then
-				uri = result[1].targetUri
+		for _, x in pairs(result) do
+			-- Handle different LSP response formats
+			local uri
+			-- Handle array of results (typical for "textDocument/definition")
+			if type(x) == "table" and x ~= nil then
+				if x.uri then
+					uri = x.uri
+				elseif x.targetUri then
+					uri = x.targetUri
+				end
+			-- Handle single result
+			elseif type(x) == "table" and x.uri then
+				uri = x.uri
+			-- Handle phpactor-style nested result
+			elseif type(x) == "table" and x.result and x.result.uri then
+				uri = x.result.uri
 			end
-		-- Handle single result
-		elseif type(result) == "table" and result.uri then
-			uri = result.uri
-		-- Handle phpactor-style nested result
-		elseif type(result) == "table" and result.result and result.result.uri then
-			uri = result.result.uri
+
+			if uri then
+				callback(uri:gsub("file://", ""))
+				return
+			end
 		end
 
-		if uri then
-			return uri:gsub("file://", "")
-		end
-	end
-end
+		callback(nil)
+	end)
+end, 2)
 
 ---@param opts table
-function M.get_parent_file(opts)
+M.get_parent_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
 
@@ -284,7 +290,7 @@ function M.get_parent_file(opts)
 			msg = "No parser for the current buffer",
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	-- Parse the query
@@ -295,7 +301,7 @@ function M.get_parent_file(opts)
 			msg = string.format("Language not supported (%s)", filetype),
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	local query = vim.treesitter.query.parse(filetype, query_str)
@@ -305,7 +311,7 @@ function M.get_parent_file(opts)
 			msg = "Failed to parse query",
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	-- Parse the content
@@ -316,7 +322,7 @@ function M.get_parent_file(opts)
 			msg = "Failed to parse buffer content",
 			level = "ERROR",
 		})
-		return
+		callback(nil)
 	end
 
 	tree = tree[1]
@@ -325,25 +331,27 @@ function M.get_parent_file(opts)
 
 	local result = {}
 
-	for id, node, metadata in query:iter_captures(root, opts.bufnr) do
-		local capture_name = query.captures[id]
-		if capture_name == "parent" then
-			local line, char = node:start()
+	async.run(function()
+		for id, node, metadata in query:iter_captures(root, opts.bufnr) do
+			local capture_name = query.captures[id]
+			if capture_name == "parent" then
+				local line, char = node:start()
 
-			local p = M.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
-			if not p or p == "" then
-				-- error already printed in get_file_from_position
-				return
-			end
-			local defs = M.parse_file({ filename = p })
-			for _, value in pairs(defs) do
-				if value["visibility"] ~= "private" then
-					table.insert(result, value)
+				local p = M.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
+				if not p or p == "" then
+					-- error already printed in get_file_from_position
+					callback(nil)
+				end
+				local defs = M.parse_file({ filename = p })
+				for _, value in pairs(defs) do
+					if value["visibility"] ~= "private" then
+						table.insert(result, value)
+					end
 				end
 			end
 		end
-	end
-	return result
-end
+		callback(result)
+	end)
+end, 2)
 
 return M

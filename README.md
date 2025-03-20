@@ -8,12 +8,13 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
   'markelca/clapi.nvim',
-  -- Dev Mode (Uncomment the two lines below)
-  -- dir = '~/estudio/lua/clapi.nvim/',
+  -- Dev Mode (Clone the repo, update the `dir` value and uncomment the two lines below)
+  -- dir = '~/<dir-where-you-cloned>/clapi.nvim/',
   -- name = 'clapi',
   dependencies = {
     'nvim-telescope/telescope.nvim',
     'nvim-treesitter/nvim-treesitter',
+    'nvim-lua/plenary.nvim',
   },
   config = function()
     -- Enable the clapi extension adding the following line to your telescope configuration:
