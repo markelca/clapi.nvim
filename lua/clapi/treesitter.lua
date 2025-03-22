@@ -6,6 +6,9 @@ local M = {}
 
 ---@param opts table
 M.parse_file = async.wrap(function(opts, callback)
+	opts = opts or {}
+	opts.class_name = opts.class_name and string.format("%s::", opts.class_name) or ""
+
 	if opts.filename and opts.bufnr then
 		utils.notify("parse_file", {
 			msg = "filename and bufnr params can't be used at the same time",
@@ -149,7 +152,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			visibility = visibility,
 			kind = "Method",
 			lnum = method.row,
-			text = "[Method] " .. method.name,
+			text = "[Method] " .. opts.class_name .. method.name,
 		})
 	end
 
@@ -336,13 +339,14 @@ M.get_parent_file = async.wrap(function(opts, callback)
 			local capture_name = query.captures[id]
 			if capture_name == "parent" then
 				local line, char = node:start()
+				local class_name = vim.treesitter.get_node_text(node, opts.bufnr)
 
 				local p = M.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
 				if not p or p == "" then
 					-- error already printed in get_file_from_position
 					callback(nil)
 				end
-				local defs = M.parse_file({ filename = p })
+				local defs = M.parse_file({ filename = p, class_name = class_name })
 				for _, value in pairs(defs) do
 					if value["visibility"] ~= "private" then
 						table.insert(result, value)
