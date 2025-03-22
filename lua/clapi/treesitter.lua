@@ -15,6 +15,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	if opts.filename then
@@ -33,6 +34,7 @@ M.parse_file = async.wrap(function(opts, callback)
 				level = "ERROR",
 			})
 			callback(nil)
+			return
 		end
 		opts.filetype = filetype
 	end
@@ -43,6 +45,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	opts.query_str = opts.query_str or M.get_query(opts.filetype, "locals")
@@ -53,6 +56,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	-- Ensure buffer is loaded
@@ -69,6 +73,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	-- Parse the query
@@ -79,6 +84,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	-- Parse the content
@@ -90,6 +96,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	tree = tree[1]
@@ -196,6 +203,7 @@ M.parse_file = async.wrap(function(opts, callback)
 		if not parent_defs then
 			-- error already printed somewhere
 			callback(result)
+			return
 		end
 		for key, value in pairs(parent_defs) do
 			table.insert(result, value)
