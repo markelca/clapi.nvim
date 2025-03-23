@@ -21,18 +21,23 @@ function M.get_query(lang, query_group)
 	return nil
 end
 
----@param node TSNode
----@param query vim.treesitter.Query
+---@param node TSNode The treesitter node of the visibility modifier
+---@param bufnr integer The buffer number of the source file
 ---@return string visibility The visibility modifier of the node
 local function get_visibility(node, bufnr)
-	for n, _ in node:parent():iter_children() do
-		if n:type() == "visibility_modifier" then -- TODO: make this line language agnostic
+	for n, _ in node:iter_children() do
+		local type = n:type()
+		if type == "visibility_modifier" then -- TODO: make this line language agnostic
 			return vim.treesitter.get_node_text(n, bufnr)
 		end
 	end
 	return "public" -- Public by default (TODO: review this wih more languages)
 end
 
+---@param node TSNode
+---@param start_col integer
+---@param start_row integer
+---@param opts table
 M.parse_method = function(node, start_col, start_row, opts)
 	local visibility = get_visibility(node, opts.bufnr)
 	local text = vim.treesitter.get_node_text(node, opts.bufnr)
@@ -46,6 +51,10 @@ M.parse_method = function(node, start_col, start_row, opts)
 	}
 end
 
+---@param node TSNode
+---@param start_col integer
+---@param start_row integer
+---@param opts table
 M.parse_property = function(node, start_col, start_row, opts)
 	local parent = node:parent()
 	local prop_parent = parent
