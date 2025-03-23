@@ -1,7 +1,7 @@
 # clapi.nvim
 
 The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers to show document symbols don't include the items' visibility modifiers. This extension provides a picker including them, so you can display and navigate the class/module interface easily.
-![clapi](https://github.com/user-attachments/assets/84f8c0b9-1546-4657-af2b-bef8162a2911)
+![demo.gif](https://github.com/user-attachments/assets/6785bc10-faca-4ba6-81dd-ce7c5c79f039)
 
 ## Installation
 Using [lazy.nvim](https://github.com/folke/lazy.nvim)
