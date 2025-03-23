@@ -21,6 +21,62 @@ function M.get_query(lang, query_group)
 	return nil
 end
 
+---@param node TSNode
+---@param query vim.treesitter.Query
+---@return string visibility The visibility modifier of the node
+local function get_visibility(node, bufnr)
+	for n, _ in node:parent():iter_children() do
+		if n:type() == "visibility_modifier" then -- TODO: make this line language agnostic
+			return vim.treesitter.get_node_text(n, bufnr)
+		end
+	end
+	return "public" -- Public by default (TODO: review this wih more languages)
+end
+
+M.parse_method = function(node, start_col, start_row, opts)
+	local visibility = get_visibility(node, opts.bufnr)
+	local text = vim.treesitter.get_node_text(node, opts.bufnr)
+	return {
+		col = start_col + 1,
+		filename = opts.filename,
+		visibility = visibility,
+		kind = "Method",
+		lnum = start_row + 1,
+		text = "[Method] " .. opts.class_name .. text,
+	}
+end
+
+M.parse_property = function(node, start_col, start_row, opts)
+	local parent = node:parent()
+	local prop_parent = parent
+
+	-- Find the parent property declaration or promotion parameter
+	while
+		prop_parent
+		and prop_parent:type() ~= "property_declaration"
+		and prop_parent:type() ~= "property_promotion_parameter"
+	do
+		prop_parent = prop_parent:parent()
+	end
+
+	-- vim.print("propparent", vim.treesitter.get_node_text(prop_parent, opts.bufnr))
+	if not prop_parent then
+		error("Couldn't find the parent for the property")
+		return
+	end
+
+	local visibility = get_visibility(prop_parent, opts.bufnr)
+	local text = vim.treesitter.get_node_text(node, opts.bufnr)
+	return {
+		col = start_col + 1,
+		filename = opts.filename,
+		visibility = visibility,
+		kind = "Property",
+		lnum = start_row + 1,
+		text = "[Property] " .. opts.class_name .. text,
+	}
+end
+
 ---@param opts table
 M.parse_file = async.wrap(function(opts, callback)
 	opts = opts or {}
@@ -122,97 +178,19 @@ M.parse_file = async.wrap(function(opts, callback)
 
 	-- Execute the query and collect results
 	local result = {}
-	local methods = {}
-	local properties = {}
-	local visibilities = {}
 
 	-- First pass - collect all captures
-	for id, node, metadata in query:iter_captures(root, opts.bufnr) do
+	for id, node, _ in query:iter_captures(root, opts.bufnr) do
 		local capture_name = query.captures[id]
-		local text = vim.treesitter.get_node_text(node, opts.bufnr)
 		local start_row, start_col, _, _ = node:range()
 
 		if capture_name == "method_name" then
-			table.insert(methods, {
-				name = text,
-				node = node,
-				row = start_row + 1,
-				col = start_col + 1,
-			})
+			local method = M.parse_method(node, start_col, start_row, opts)
+			table.insert(result, method)
 		elseif capture_name == "prop_name" then
-			table.insert(properties, {
-				name = text,
-				node = node,
-				row = start_row + 1,
-				col = start_col + 1,
-			})
-		elseif capture_name == "visibility" then
-			table.insert(visibilities, {
-				value = text,
-				node = node,
-				row = start_row + 1,
-				col = start_col + 1,
-			})
+			local property = M.parse_property(node, start_col, start_row, opts)
+			table.insert(result, property)
 		end
-	end
-
-	-- Process methods and associate them with visibilities
-	for _, method in ipairs(methods) do
-		local parent = method.node:parent()
-		local visibility = "public" -- Default visibility
-
-		-- Find the closest visibility modifier
-		for _, vis in ipairs(visibilities) do
-			local vis_parent = vis.node:parent()
-			if vis_parent == parent then
-				visibility = vis.value
-				break
-			end
-		end
-
-		table.insert(result, {
-			col = method.col,
-			filename = opts.filename,
-			visibility = visibility,
-			kind = "Method",
-			lnum = method.row,
-			text = "[Method] " .. opts.class_name .. method.name,
-		})
-	end
-
-	-- Process properties and associate them with visibilities
-	for _, prop in ipairs(properties) do
-		local parent = prop.node:parent()
-		local prop_parent = parent
-
-		-- Find the parent property declaration or promotion parameter
-		while
-			prop_parent
-			and prop_parent:type() ~= "property_declaration"
-			and prop_parent:type() ~= "property_promotion_parameter"
-		do
-			prop_parent = prop_parent:parent()
-		end
-
-		local visibility = "private" -- Default visibility
-
-		-- Find the closest visibility modifier
-		for _, vis in ipairs(visibilities) do
-			local vis_parent = vis.node:parent()
-			if vis_parent == prop_parent then
-				visibility = vis.value
-				break
-			end
-		end
-
-		table.insert(result, {
-			col = prop.col,
-			filename = opts.filename,
-			visibility = visibility,
-			kind = "Property",
-			lnum = prop.row,
-			text = "[Property] " .. opts.class_name .. prop.name,
-		})
 	end
 
 	async.run(function()
