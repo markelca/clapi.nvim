@@ -45,9 +45,26 @@ M.parse_method = function(node, start_col, start_row, opts)
 		col = start_col + 1,
 		filename = opts.filename,
 		visibility = visibility,
+		kind = "Function",
+		lnum = start_row + 1,
+		text = "[Function] " .. opts.class_name .. text,
+	}
+end
+
+---@param node TSNode
+---@param start_col integer
+---@param start_row integer
+---@param opts table
+M.parse_constant = function(node, start_col, start_row, opts)
+	local text = vim.treesitter.get_node_text(node, opts.bufnr)
+	local visibility = get_visibility(node:parent():parent(), opts.bufnr)
+	return {
+		col = start_col + 1,
+		filename = opts.filename,
+		visibility = visibility,
 		kind = "Method",
 		lnum = start_row + 1,
-		text = "[Method] " .. opts.class_name .. text,
+		text = "[Constant] " .. opts.class_name .. text,
 	}
 end
 
@@ -199,6 +216,9 @@ M.parse_file = async.wrap(function(opts, callback)
 		elseif capture_name == "prop_name" then
 			local property = M.parse_property(node, start_col, start_row, opts)
 			table.insert(result, property)
+		elseif capture_name == "const_name" then
+			local const = M.parse_constant(node, start_col, start_row, opts)
+			table.insert(result, const)
 		end
 	end
 
