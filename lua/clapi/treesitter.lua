@@ -264,7 +264,7 @@ M.get_parent_file = async.wrap(function(opts, callback)
 	async.run(function()
 		for id, node, metadata in query:iter_captures(root, opts.bufnr) do
 			local capture_name = query.captures[id]
-			if capture_name == "parent" then
+			if capture_name == "parent" or capture_name == "trait" then
 				local line, char = node:start()
 				local class_name = vim.treesitter.get_node_text(node, opts.bufnr)
 
