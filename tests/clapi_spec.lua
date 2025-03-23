@@ -1,0 +1,5 @@
+describe("clapi.nvim", function()
+	it("should pass this simple test", function()
+		assert(true == true)
+	end)
+end)
