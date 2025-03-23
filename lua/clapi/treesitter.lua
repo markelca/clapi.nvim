@@ -194,7 +194,7 @@ M.parse_file = async.wrap(function(opts, callback)
 			visibility = visibility,
 			kind = "Property",
 			lnum = prop.row,
-			text = "[Property] " .. prop.name,
+			text = "[Property] " .. opts.class_name .. prop.name,
 		})
 	end
 
