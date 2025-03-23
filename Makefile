@@ -1,4 +1,4 @@
 .PHONY: test
 
 test:
-	nvim --headless -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
+	nvim --headless -c "PlenaryBustedDirectory tests/clapi {minimal_init = 'tests/minimal_init.lua'}"
