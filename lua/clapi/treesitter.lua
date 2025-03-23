@@ -1,8 +1,25 @@
 local utils = require("clapi.utils")
 local parsers = require("nvim-treesitter.parsers")
 local async = require("plenary.async")
+local lsp = require("clapi.lsp")
+
 -- Treesitter Parser Module
 local M = {}
+
+---@param lang string
+---@param query_group string
+function M.get_query(lang, query_group)
+	-- TODO: nil check
+	--
+	local results = vim.api.nvim_get_runtime_file(string.format("queries/%s/%s.scm", lang, query_group), true)
+	for i, value in ipairs(results) do
+		if string.find(value, "clapi") then
+			local fullpath = results[i]
+			return utils.read_file(fullpath)
+		end
+	end
+	return nil
+end
 
 ---@param opts table
 M.parse_file = async.wrap(function(opts, callback)
@@ -205,87 +222,11 @@ M.parse_file = async.wrap(function(opts, callback)
 			callback(result)
 			return
 		end
-		for key, value in pairs(parent_defs) do
+		for _, value in pairs(parent_defs) do
 			table.insert(result, value)
 		end
 
 		callback(result)
-	end)
-end, 2)
-
----@param lang string
----@param query_group string
-function M.get_query(lang, query_group)
-	-- TODO: nil check
-	--
-	local results = vim.api.nvim_get_runtime_file(string.format("queries/%s/%s.scm", lang, query_group), true)
-	for i, value in ipairs(results) do
-		if string.find(value, "clapi") then
-			local fullpath = results[i]
-			return utils.read_file(fullpath)
-		end
-	end
-	return nil
-end
---------------------------
---- Parent functions
---------------------------
---- Gets the full filepath given the position of an element in the file
-
----@param opts table
-M.get_file_from_position = async.wrap(function(opts, callback)
-	opts = opts or {}
-	opts.bufnr = opts.bufnr or 0
-
-	if not opts.position then
-		utils.notify("get_file_from_position", {
-			msg = "Position not provided",
-			level = "ERROR",
-		})
-		callback(nil)
-		return
-	end
-
-	vim.lsp.buf_request(opts.bufnr, "textDocument/definition", {
-		position = opts.position,
-		textDocument = {
-			uri = string.format("file://%s", vim.api.nvim_buf_get_name(opts.bufnr)),
-		},
-	}, function(err, result, _, _)
-		if err or not result then
-			utils.notify("get_parent_file", {
-				msg = "Couldn't get the file for the parent class",
-				level = "ERROR",
-			})
-			callback(nil)
-			return
-		end
-
-		for _, x in pairs(result) do
-			-- Handle different LSP response formats
-			local uri
-			-- Handle array of results (typical for "textDocument/definition")
-			if type(x) == "table" and x ~= nil then
-				if x.uri then
-					uri = x.uri
-				elseif x.targetUri then
-					uri = x.targetUri
-				end
-			-- Handle single result
-			elseif type(x) == "table" and x.uri then
-				uri = x.uri
-			-- Handle phpactor-style nested result
-			elseif type(x) == "table" and x.result and x.result.uri then
-				uri = x.result.uri
-			end
-
-			if uri then
-				callback(uri:gsub("file://", ""))
-				return
-			end
-		end
-
-		callback(nil)
 	end)
 end, 2)
 
@@ -349,12 +290,13 @@ M.get_parent_file = async.wrap(function(opts, callback)
 				local line, char = node:start()
 				local class_name = vim.treesitter.get_node_text(node, opts.bufnr)
 
-				local p = M.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
-				if not p or p == "" then
+				local filepath =
+					lsp.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
+				if not filepath or filepath == "" then
 					-- error already printed in get_file_from_position
 					callback(nil)
 				end
-				local defs = M.parse_file({ filename = p, class_name = class_name })
+				local defs = M.parse_file({ filename = filepath, class_name = class_name })
 				for _, value in pairs(defs) do
 					if value["visibility"] ~= "private" then
 						table.insert(result, value)
