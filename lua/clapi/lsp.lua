@@ -32,31 +32,13 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 			return
 		end
 
-		for _, x in pairs(result) do
-			-- Handle different LSP response formats
-			local uri
-			-- Handle array of results (typical for "textDocument/definition")
-			if type(x) == "table" and x ~= nil then
-				if x.uri then
-					uri = x.uri
-				elseif x.targetUri then
-					uri = x.targetUri
-				end
-			-- Handle single result
-			elseif type(x) == "table" and x.uri then
-				uri = x.uri
-			-- Handle phpactor-style nested result
-			elseif type(x) == "table" and x.result and x.result.uri then
-				uri = x.result.uri
-			end
+		local uri = result.uri or result[1].uri or result[1].targetUri
 
-			if uri then
-				callback(uri:gsub("file://", ""))
-				return
-			end
+		if uri then
+			callback(vim.uri_to_fname(uri))
+		else
+			callback(nil)
 		end
-
-		callback(nil)
 	end)
 end, 2)
 
