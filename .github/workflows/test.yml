@@ -22,5 +22,8 @@ jobs:
       - name: Install Telescope
         run: |
           git clone --depth 1 https://github.com/nvim-telescope/telescope.nvim.git ~/.local/share/nvim/site/pack/vendor/start/telescope.nvim
+      - name: Install Treesitter
+        run: |
+          git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter ~/.local/share/nvim/site/pack/vendor/start/nvim-treesitter.nvim
       - name: Run Tests
         run: make test
