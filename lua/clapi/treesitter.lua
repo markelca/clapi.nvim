@@ -39,7 +39,7 @@ end
 ---@param start_row integer
 ---@param opts table
 M.parse_method = function(node, start_col, start_row, opts)
-	local visibility = get_visibility(node, opts.bufnr)
+	local visibility = get_visibility(node:parent(), opts.bufnr)
 	local text = vim.treesitter.get_node_text(node, opts.bufnr)
 	return {
 		col = start_col + 1,
