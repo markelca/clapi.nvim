@@ -1,0 +1,3 @@
+[submodule "tests/clapi/resources/code/php/php-ddd-example"]
+	path = tests/clapi/resources/code/php/php-ddd-example
+	url = https://github.com/CodelyTV/php-ddd-example.git
