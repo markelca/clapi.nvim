@@ -85,7 +85,6 @@ M.parse_property = function(node, start_col, start_row, opts)
 		prop_parent = prop_parent:parent()
 	end
 
-	-- vim.print("propparent", vim.treesitter.get_node_text(prop_parent, opts.bufnr))
 	if not prop_parent then
 		error("Couldn't find the parent for the property")
 		return
