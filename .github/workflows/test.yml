@@ -8,8 +8,8 @@ on:
 
 jobs:
   test:
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    # runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - name: Install Neovim
@@ -23,7 +23,7 @@ jobs:
           git clone --depth 1 https://github.com/nvim-telescope/telescope.nvim.git ~/.local/share/nvim/site/pack/vendor/start/telescope.nvim
           git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter ~/.local/share/nvim/site/pack/vendor/start/nvim-treesitter.nvim
           git submodule update --init
-          sudo apt update
-          sudo apt install build-essential
+          sudo apt update -y
+          sudo apt install build-essential -y
       - name: Run Tests
         run: make test
