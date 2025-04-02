@@ -45,7 +45,7 @@ M.parse_method = function(node, start_col, start_row, opts)
 		col = start_col + 1,
 		filename = opts.filename,
 		visibility = visibility,
-		kind = "Function",
+		kind = "foo",
 		lnum = start_row + 1,
 		text = "[Function] " .. opts.class_name .. text,
 	}
