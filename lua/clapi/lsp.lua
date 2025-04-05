@@ -34,7 +34,8 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 	-- 	},
 	-- }))
 	vim.print("LSP attached:", vim.lsp.buf_is_attached(0, 1))
-	-- vim.print("syms", vim.lsp.buf_request_sync(0, "workspace/symbol", { query = "*" }))
+	-- vim.print("syms", vim.lsp.buf_request_sync(0, "workspace/symbol", { query = "AggregateRoot" }, 30000))
+	vim.print(vim.lsp.buf_request_sync(0, "workspace/symbol", { query = "AggregateRoot" }))
 	-- vim.print(vim.lsp.buf_request_sync(0, "workspace/symbol", { query = "AggregateRoot" }))
 	vim.print(params)
 	vim.lsp.buf_request(opts.bufnr, "textDocument/definition", {
