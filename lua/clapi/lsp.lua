@@ -1,5 +1,5 @@
 local utils = require("clapi.utils")
-local async = require("plenary.async")
+local async = require("plenary.async_lib")
 
 local M = {}
 

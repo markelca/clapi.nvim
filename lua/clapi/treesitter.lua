@@ -1,6 +1,6 @@
 local utils = require("clapi.utils")
 local parsers = require("nvim-treesitter.parsers")
-local async = require("plenary.async")
+local async = require("plenary.async_lib")
 local lsp = require("clapi.lsp")
 
 -- Treesitter Parser Module
@@ -47,7 +47,7 @@ M.parse_method = function(node, start_col, start_row, opts)
 		visibility = visibility,
 		kind = "foo",
 		lnum = start_row + 1,
-		text = "[Function] " .. opts.class_name .. text,
+		text = "[foo] " .. opts.class_name .. text,
 	}
 end
 
@@ -222,17 +222,17 @@ M.parse_file = async.wrap(function(opts, callback)
 	end
 
 	async.run(function()
-		local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
-		if not parent_defs then
-			-- error already printed somewhere
-			callback(result)
-			return
-		end
-		for _, value in pairs(parent_defs) do
-			table.insert(result, value)
-		end
-
-		callback(result)
+		-- local parent_defs = M.get_parent_file({ bufnr = opts.bufnr })
+		-- if not parent_defs then
+		-- 	-- error already printed somewhere
+		-- 	callback(result)
+		-- 	return
+		-- end
+		-- for _, value in pairs(parent_defs) do
+		-- 	table.insert(result, value)
+		-- end
+		--
+		-- callback(result)
 	end)
 end, 2)
 
