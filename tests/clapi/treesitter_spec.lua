@@ -15,25 +15,17 @@ local fn = function()
 	})
 	vim.lsp.buf_attach_client(bufnr, client_id)
 	vim.wait(1000)
-	vim.print(vim.lsp.buf_request_sync(bufnr, "workspace/symbol", { query = "AggregateRoot" }))
-	-- print("LSP attached:", vim.lsp.buf_is_attached(0, 1))
-	-- print("LSP status:", vim.lsp.status())
-	-- local result = treesitter.parse_file({
-	-- 	bufnr = bufnr,
-	-- })
-	-- vim.print("r", result)
-	-- assert(true == false)
-	vim.print("aftertest")
-	-- 	async.run(result, function()
-	-- 		vim.print("y", result())
-	-- 		assert(true == false)
-	-- 	end)
+
+	vim.print("id", client_id)
+	local result = treesitter.parse_file({
+		bufnr = bufnr,
+	})
+	assert(result ~= nil)
+	vim.print("r", result)
 end
 
 local function defer_test()
-	vim.wait(1000, function()
-		print("Defered func!")
-	end)
+	vim.wait(1000)
 	print("end test")
 end
 
@@ -75,21 +67,27 @@ local function lsp_test()
 
 	-- Add a small delay to ensure the LSP has time to initialize and attach
 	vim.wait(1000)
-	vim.print("SNTHSNTHSNTH")
 	print("LSP attached:", vim.lsp.buf_is_attached(bufnr, client_id))
 
 	-- Only make the request if the client is attached
 	if vim.lsp.buf_is_attached(bufnr, client_id) then
-		local result = vim.lsp.buf_request_sync(bufnr, "workspace/symbol", { query = "AggregateRoot" }, 5000)
-		vim.print("Result:", result)
+		vim.lsp.buf_request(
+			bufnr,
+			"workspace/symbol",
+			{ query = "AggregateRoot" },
+			function(err, result, context, config)
+				vim.print("Result:", err, result)
+			end
+		)
+		vim.wait(5000)
 	else
 		print("LSP client not attached, skipping request")
 	end
 end
 
-describe("treesitter.parse_file", function()
-	it("should parse methods from a PHP file", fn)
+t.describe("treesitter.parse_file", function()
+	t.it("should parse methods from a PHP file", fn)
 	-- t.it("should parse methods from a PHP file", lsp_test)
 	-- it("async test", async_test)
-	-- it("defer test", defer_test)
+	-- t.it("defer test", defer_test)
 end)

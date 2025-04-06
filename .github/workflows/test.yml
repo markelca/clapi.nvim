@@ -24,7 +24,7 @@ jobs:
           git clone --depth 1 https://github.com/nvim-treesitter/nvim-treesitter ~/.local/share/nvim/site/pack/vendor/start/nvim-treesitter.nvim
           git clone --depth 1 https://github.com/williamboman/mason.nvim.git ~/.local/share/nvim/site/pack/vendor/start/mason.nvim.git
           git clone --depth 1 https://github.com/williamboman/mason-lspconfig.nvim.git ~/.local/share/nvim/site/pack/vendor/start/mason-lspconfig.nvim.git
-          git clone --depth 1 https://github.com/williamboman/mason-tool-installer.nvim.git ~/.local/share/nvim/site/pack/vendor/start/mason-tool-installer.nvim.git
+          git clone --depth 1 https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim.git ~/.local/share/nvim/site/pack/vendor/start/mason-tool-installer.nvim.git
           git submodule update --init
           sudo apt update -y
           sudo apt install build-essential -y
