@@ -40,3 +40,6 @@ require("mason-lspconfig").setup({
 		end,
 	},
 })
+
+-- NOTE: Had to add this to leave time for the gh action to download the treesitter php parser
+-- vim.wait(10000)
