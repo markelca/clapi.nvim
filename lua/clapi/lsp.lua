@@ -33,10 +33,11 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 	-- 		uri = "file:///home/markel/estudio/lua/clapi.nvim/tests/clapi/resources/code/php/php-ddd-example/src/Mooc/Courses/Domain/Course.php",
 	-- 	},
 	-- }))
-	vim.print("LSP attached:", vim.lsp.buf_is_attached(0, 1))
+	-- vim.print(vim.lsp.get_clients())
+	-- vim.print("LSP attached:", vim.lsp.buf_is_attached(0, 1))
 	-- vim.print("syms", vim.lsp.buf_request_sync(0, "workspace/symbol", { query = "AggregateRoot" }, 30000))
-	vim.print(vim.lsp.buf_request_sync(0, "workspace/symbol", { query = "AggregateRoot" }))
 	-- vim.print(vim.lsp.buf_request_sync(0, "workspace/symbol", { query = "AggregateRoot" }))
+	-- vim.print(vim.lsp.buf_request_sync(0, "textDocument/definition", params))
 	vim.print(params)
 	vim.lsp.buf_request(opts.bufnr, "textDocument/definition", {
 		position = opts.position,
