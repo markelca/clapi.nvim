@@ -40,5 +40,3 @@ require("mason-lspconfig").setup({
 		end,
 	},
 })
-
-vim.wait(10000)
