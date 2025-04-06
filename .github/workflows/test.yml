@@ -31,5 +31,8 @@ jobs:
           git submodule update --init
           sudo apt update -y
           sudo apt install build-essential -y
+      - name: Debugging environment
+        run: |
+          ls ~/.local/share/nvim/mason/bin/
       - name: Run Tests
         run: make test
