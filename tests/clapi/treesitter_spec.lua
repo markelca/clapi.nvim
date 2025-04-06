@@ -16,12 +16,11 @@ local fn = function()
 	vim.lsp.buf_attach_client(bufnr, client_id)
 	vim.wait(1000)
 
-	vim.print("id", client_id)
+	-- vim.print("id", client_id)
 	local result = treesitter.parse_file({
 		bufnr = bufnr,
 	})
 	assert(result ~= nil)
-	vim.print("r", result)
 end
 
 local function defer_test()

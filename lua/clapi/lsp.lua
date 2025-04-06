@@ -17,6 +17,20 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 		return
 	end
 
+	local callback_called = false
+
+	local function safe_callback(result)
+		if not callback_called then
+			callback_called = true
+			callback(result)
+		else
+			utils.notify("lsp.get_file_from_position.safe_callback", {
+				msg = "get_file_from_position ignored (extra callback)",
+				level = "WARN",
+			})
+		end
+	end
+
 	vim.lsp.buf_request(opts.bufnr, "textDocument/definition", {
 		position = opts.position,
 		textDocument = {
@@ -35,10 +49,9 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 		local uri = result.uri or result[1].uri or result[1].targetUri
 
 		if uri then
-			vim.print("lspcall", opts)
-			callback(vim.uri_to_fname(uri))
+			safe_callback(vim.uri_to_fname(uri))
 		else
-			callback(nil)
+			safe_callback(nil)
 		end
 	end)
 end, 2)
