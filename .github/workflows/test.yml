@@ -8,8 +8,8 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    # runs-on: self-hosted
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - name: Install Neovim
@@ -33,6 +33,6 @@ jobs:
           sudo apt install build-essential -y
       - name: Debugging environment
         run: |
-          ls ~/.local/share/nvim/mason/bin/
+          ls ~/.local/share/nvim
       - name: Run Tests
         run: make test
