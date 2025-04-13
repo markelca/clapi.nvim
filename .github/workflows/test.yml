@@ -35,9 +35,11 @@ jobs:
         if: always()
         run: |
           ls ~/.local/share/nvim
+          find ~/.local/share/nvim -type d | grep mason
       - name: Run Tests
         run: make test
       - name: Debugging environment
         if: always()
         run: |
           ls ~/.local/share/nvim
+          find ~/.local/share/nvim -type d | grep mason
