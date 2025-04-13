@@ -32,7 +32,12 @@ jobs:
           sudo apt update -y
           sudo apt install build-essential -y
       - name: Debugging environment
+        if: always()
         run: |
           ls ~/.local/share/nvim
       - name: Run Tests
         run: make test
+      - name: Debugging environment
+        if: always()
+        run: |
+          ls ~/.local/share/nvim
