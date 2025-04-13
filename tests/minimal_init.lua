@@ -13,6 +13,8 @@ vim.opt.runtimepath:append("~/.local/share/nvim/lazy/cmp-nvim-lsp")
 vim.opt.runtimepath:append("~/.local/share/nvim/lazy/nvim-cmp")
 vim.opt.runtimepath:append("~/.local/share/nvim/lazy/nvim-lspconfig")
 
+require("nvim-treesitter.install").ensure_installed_sync("php")
+
 -- Install parsers
 require("cmp").setup({
 	sources = {
@@ -20,7 +22,6 @@ require("cmp").setup({
 	},
 })
 
-require("nvim-treesitter.install").ensure_installed_sync("php")
 require("mason").setup()
 require("mason-lspconfig").setup({
 	ensure_installed = { "phpactor" },
