@@ -30,12 +30,26 @@ jobs:
           git clone --depth 1 https://github.com/hrsh7th/cmp-nvim-lsp.git ~/.local/share/nvim/site/pack/vendor/start/cmp-nvim-lsp.git
           git submodule update --init
           sudo apt update -y
-          sudo apt install build-essential -y
+          sudo apt install build-essential php php-xml php-mbstring php-curl composer -y
       - name: Debugging environment
         if: always()
         run: |
           ls ~/.local/share/nvim
           find ~/.local/share/nvim -type d | grep mason
+      - name: Prepare Mason
+        run: |
+          mkdir -p ~/.local/share/nvim/mason
+          mkdir -p ~/.local/share/nvim/mason/bin
+          mkdir -p ~/.local/share/nvim/mason/packages
+          
+          # Pre-install phpactor manually if possible
+          if [ ! -d ~/.local/share/nvim/mason/packages/phpactor ]; then
+            mkdir -p ~/.local/share/nvim/mason/packages/phpactor
+            git clone --depth 1 https://github.com/phpactor/phpactor ~/.local/share/nvim/mason/packages/phpactor
+            cd ~/.local/share/nvim/mason/packages/phpactor
+            composer install --no-dev -o
+            ln -sf ~/.local/share/nvim/mason/packages/phpactor/bin/phpactor ~/.local/share/nvim/mason/bin/phpactor
+          fi
       - name: Run Tests
         run: make test
       - name: Debugging environment
