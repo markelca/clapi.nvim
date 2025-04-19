@@ -1,7 +1,5 @@
 -- Minimal init for running tests
 vim.opt.runtimepath:append(vim.fn.getcwd())
--- vim.opt.runtimepath:append("~/.local/share/nvim/lazy/clapi.nvim")
--- vim.opt.runtimepath:append("~/.local/share/nvim/lazy/plenary.nvim")
 vim.opt.runtimepath:append("~/estudio/lua/plenary.nvim")
 vim.opt.runtimepath:append("~/.local/share/nvim/lazy/telescope.nvim")
 vim.opt.runtimepath:append("~/.local/share/nvim/lazy/nvim-treesitter")
@@ -26,15 +24,12 @@ require("mason").setup({
 	install_root_dir = vim.fn.expand("~/.local/share/nvim/mason"),
 })
 
--- Log directory information
 vim.notify("Mason install root: " .. vim.fn.expand("~/.local/share/nvim/mason"))
 
---
--- Set up Mason-LSPConfig
 print("installing LSPs")
 
 -- local lsp_list = { "phpactor", "java-language-server" }
-local lsp_list = { "java-language-server", "phpactor" }
+local lsp_list = { "phpactor", "java-language-server" }
 
 -- Force synchronous installation
 local registry = require("mason-registry")
@@ -127,9 +122,8 @@ end
 
 -- NOTE: Had to add this to leave time for the gh action to download the treesitter php parser and LSP
 vim.notify("Waiting for treesitter and LSP installation...")
--- vim.wait(20000) -- Increased wait time to 20 seconds
 vim.notify("Checking Mason paths and installed servers...")
-vim.cmd("!ls -la ~/.local/share/nvim/mason/bin/", true)
+-- vim.cmd("!ls -la ~/.local/share/nvim/mason/bin/", true)
 vim.notify(
 	"Mason LSP installation paths: " .. vim.inspect(vim.fn.glob("~/.local/share/nvim/mason/packages/*", true, true))
 )
