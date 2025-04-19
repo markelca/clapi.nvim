@@ -3,8 +3,6 @@ local async = require("plenary.async")
 local t = require("plenary.async.tests")
 
 local fn = function()
-	require("nvim-treesitter.install").ensure_installed_sync("php")
-	vim.wait(10000)
 	local filename =
 		"/home/markel/estudio/lua/clapi.nvim/tests/clapi/resources/code/php/php-ddd-example/src/Mooc/Courses/Domain/Course.php"
 	vim.cmd("edit " .. filename)
