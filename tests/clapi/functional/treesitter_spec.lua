@@ -3,7 +3,7 @@ local t = require("plenary.async.tests")
 
 t.describe("treesitter.parse_file", function()
 	t.it("should parse methods from a PHP file", function()
-		local src_root_dir = vim.fn.getcwd() .. "/tests/clapi/resources/code/php/example/src"
+		local src_root_dir = vim.fn.getcwd() .. "/tests/clapi/functional/resources/code/php/example/src"
 		local filename = src_root_dir .. "/Course/Course.php"
 		vim.cmd("edit " .. filename)
 		local bufnr = vim.api.nvim_get_current_buf()
