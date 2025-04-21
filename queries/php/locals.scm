@@ -10,7 +10,5 @@
 
 (const_declaration
   (const_element
-    (name) @const_name
-    )
-  )
+    (name) @const_name))
 

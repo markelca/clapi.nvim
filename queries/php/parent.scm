@@ -5,4 +5,4 @@
 (class_declaration 
   (declaration_list
 	(use_declaration
-	  (name) @trait)))
+	  (name) @parent)))
