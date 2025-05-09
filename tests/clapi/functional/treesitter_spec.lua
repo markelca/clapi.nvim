@@ -1,4 +1,4 @@
-local treesitter = require("clapi.parsers.current")
+local treesitter = require("clapi.parsers")
 local t = require("plenary.async.tests")
 
 t.describe("treesitter.parse_file", function()

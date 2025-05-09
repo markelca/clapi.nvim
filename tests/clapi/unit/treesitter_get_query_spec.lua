@@ -1,4 +1,4 @@
-local treesitter = require("clapi.parsers.current")
+local treesitter = require("clapi.parsers")
 local utils = require("clapi.utils")
 
 describe("treesitter.get_query", function()
