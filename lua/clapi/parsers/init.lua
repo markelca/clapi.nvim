@@ -20,7 +20,7 @@ end
 ---@param node TSNode The treesitter node of the visibility modifier
 ---@param bufnr integer The buffer number of the source file
 ---@return string visibility The visibility modifier of the node
-function Parser:get_visibility(node, bufnr)
+function Parser.get_visibility(node, bufnr)
 	error("Not implemented!")
 end
 ---
@@ -28,7 +28,7 @@ end
 ---@param start_col integer
 ---@param start_row integer
 ---@param opts table
-function Parser:parse_method(node, start_col, start_row, opts)
+function Parser.parse_method(node, start_col, start_row, opts)
 	error("Not implemented!")
 end
 
@@ -36,7 +36,7 @@ end
 ---@param start_col integer
 ---@param start_row integer
 ---@param opts table
-function Parser:parse_constant(node, start_col, start_row, opts)
+function Parser.parse_constant(node, start_col, start_row, opts)
 	error("Not implemented!")
 end
 
@@ -44,7 +44,7 @@ end
 ---@param start_col integer
 ---@param start_row integer
 ---@param opts table
-function Parser:parse_property(node, start_col, start_row, opts)
+function Parser.parse_property(node, start_col, start_row, opts)
 	error("Not implemented!")
 end
 
@@ -61,6 +61,7 @@ function Parser.get_parser(lang)
 
 	local parsers = {
 		["php"] = require("clapi.parsers.php"),
+		["java"] = require("clapi.parsers.java"),
 	}
 
 	local parser = parsers[lang]
@@ -211,13 +212,13 @@ Parser.parse_file = async.wrap(function(opts, callback)
 		local start_row, start_col, _, _ = node:range()
 
 		if capture_name == "method_name" then
-			local method = parser:parse_method(node, start_col, start_row, opts)
+			local method = parser.parse_method(node, start_col, start_row, opts)
 			table.insert(result, method)
 		elseif capture_name == "prop_name" then
-			local property = parser:parse_property(node, start_col, start_row, opts)
+			local property = parser.parse_property(node, start_col, start_row, opts)
 			table.insert(result, property)
 		elseif capture_name == "const_name" then
-			local const = parser:parse_constant(node, start_col, start_row, opts)
+			local const = parser.parse_constant(node, start_col, start_row, opts)
 			table.insert(result, const)
 		end
 	end
