@@ -8,7 +8,7 @@ public final class Course extends AggregateRoot {
     private final int id;
     private String name;
     private final float duration;
-    private final Map<String, Object> att = new HashMap<>();
+    public final Map<String, Object> att = new HashMap<>();
 
     public Course(int id, String name, float duration) {
         this.id = id;
