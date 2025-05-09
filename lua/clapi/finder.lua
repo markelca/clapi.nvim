@@ -2,7 +2,7 @@ local conf = require("telescope.config").values
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local make_entry = require("clapi.make_entry")
-local treesitter = require("clapi.treesitter")
+local treesitter = require("clapi.parsers.current")
 local async = require("plenary.async")
 
 local M = {}
