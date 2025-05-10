@@ -41,10 +41,12 @@ end
 ---Get parent class file and parse its definitions
 ---@param opts table Options for parsing
 ---@param opts.bufnr? integer Buffer number, defaults to current buffer (0)
+---@param opts.show_inherited? boolean Whether to include inherited members from grandparents, defaults to true
 ---@return table|nil definitions List of definitions from parent class or nil if error
 local get_parent_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
+	opts.show_inherited = vim.F.if_nil(opts.show_inherited, true)
 
 	local filetype = tsparsers.get_buf_lang(opts.bufnr)
 	local parser = vim.treesitter.get_parser(opts.bufnr, filetype)
@@ -108,7 +110,12 @@ local get_parent_file = async.wrap(function(opts, callback)
 					-- error already printed in get_file_from_position
 					callback(nil)
 				end
-				local defs = M.parse_file({ filename = filepath, class_name = class_name })
+				-- Pass the show_inherited option to parse_file for recursive parent parsing
+				local defs = M.parse_file({
+					filename = filepath,
+					class_name = class_name,
+					show_inherited = opts.show_inherited
+				})
 				for _, value in pairs(defs) do
 					if value["visibility"] ~= "private" then
 						table.insert(result, value)
@@ -127,10 +134,12 @@ end, 2)
 ---@param opts.class_name? string Name of the class to filter results
 ---@param opts.filetype? string Force filetype instead of detecting from extension
 ---@param opts.query_str? string Custom query string instead of loading from queries
+---@param opts.show_inherited? boolean Whether to include inherited members, defaults to true
 ---@return table|nil results List of symbols found or nil if error
 M.parse_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.class_name = opts.class_name and string.format("%s::", opts.class_name) or ""
+	opts.show_inherited = vim.F.if_nil(opts.show_inherited, true)
 
 	if opts.filename and opts.bufnr then
 		utils.notify("parse_file", {
@@ -258,19 +267,27 @@ M.parse_file = async.wrap(function(opts, callback)
 		end
 	end
 
-	async.run(function()
-		local parent_defs = get_parent_file({ bufnr = opts.bufnr })
-		if not parent_defs then
-			-- error already printed somewhere
-			callback(result)
-			return
-		end
-		for _, value in pairs(parent_defs) do
-			table.insert(result, value)
-		end
+	-- Only include inherited members if show_inherited is true
+	if opts.show_inherited then
+		async.run(function()
+			local parent_defs = get_parent_file({ 
+				bufnr = opts.bufnr,
+				show_inherited = opts.show_inherited
+			})
+			if not parent_defs then
+				-- error already printed somewhere
+				callback(result)
+				return
+			end
+			for _, value in pairs(parent_defs) do
+				table.insert(result, value)
+			end
 
+			callback(result)
+		end)
+	else
 		callback(result)
-	end)
+	end
 end, 2)
 
 return M

@@ -13,11 +13,20 @@ local M = {}
 ---@param opts.bufnr? integer Buffer number, defaults to current buffer (0)
 ---@param opts.path_display? table|string How to display paths
 ---@param opts.entry_maker? function Custom entry maker function
+---@param opts.show_inherited? boolean Show inherited members, defaults to true
 ---@return nil
 M.builtin = function(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
+
+	-- Get extension configuration
+	local telescope_config = require("telescope.config").values
+	local ext_config = telescope_config.extensions and telescope_config.extensions.clapi or {}
+
+	-- Set show_inherited default value (true if not specified)
+	opts.show_inherited = vim.F.if_nil(opts.show_inherited, ext_config.show_inherited, true)
+
 	async.run(function()
 		local results = parser.parse_file(opts)
 		if not results then

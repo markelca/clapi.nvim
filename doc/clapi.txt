@@ -99,12 +99,15 @@ The clapi picker accepts the following options:
   - `bufnr`: Buffer number (defaults to current buffer)
   - `path_display`: How to display paths
   - `entry_maker`: Custom entry maker function
+  - `show_inherited`: Whether to show inherited members from parent classes,
+    traits, and interfaces (defaults to true)
 
 Example configuration: >lua
   require('telescope').setup {
     extensions = {
       clapi = {
         -- Default configuration options
+        show_inherited = true, -- Set to false to only show members defined in the current class
       },
     },
   }
@@ -128,6 +131,9 @@ Parameters:
     - `bufnr` (number, optional): Buffer number, defaults to current buffer (0)
     - `path_display` (table|string, optional): How to display paths
     - `entry_maker` (function, optional): Custom entry maker function
+    - `show_inherited` (boolean, optional): Show inherited members from parent classes,
+      traits, and interfaces. Defaults to true. Set to false to only show members
+      defined in the current class.
 
 Returns: nil
 
@@ -150,7 +156,8 @@ Basic usage: >lua
 Advanced usage with custom options: >lua
   -- Open the API picker with specific options
   require('clapi').builtin({
-    path_display = { "smart" }
+    path_display = { "smart" },
+    show_inherited = false -- Only show members defined in the current class
   })
 <
 
