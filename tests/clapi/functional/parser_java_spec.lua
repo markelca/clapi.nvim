@@ -18,6 +18,7 @@ t.describe("parser.parse_file", function()
 
 		local result = parser.parse_file({
 			bufnr = bufnr,
+			show_inherited = true,
 		})
 
 		local expected = {

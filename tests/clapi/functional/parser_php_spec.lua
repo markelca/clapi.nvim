@@ -18,6 +18,7 @@ t.describe("parser.parse_file", function()
 
 		local result = parser.parse_file({
 			bufnr = bufnr,
+			show_inherited = true,
 		})
 
 		local expected = {
@@ -118,6 +119,6 @@ t.describe("parser.parse_file", function()
 				visibility = "protected",
 			},
 		}
-		assert.are.same(result, expected)
+		assert.are.same(expected, result)
 	end)
 end)
