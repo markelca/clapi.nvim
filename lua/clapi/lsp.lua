@@ -1,9 +1,16 @@
 local utils = require("clapi.utils")
 local async = require("plenary.async")
 
+---@class LSPModule
 local M = {}
 
----@param opts table
+---Gets a file path from a position using LSP
+---@param opts table Options for the LSP definition request
+---@param opts.bufnr? integer Buffer number, defaults to current buffer (0)
+---@param opts.position table The position in the buffer {line, character}
+---@param opts.position.line integer Line number (0-indexed)
+---@param opts.position.character integer Character/column position (0-indexed)
+---@return string|nil filepath The file path or nil if not found
 M.get_file_from_position = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
@@ -19,6 +26,8 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 
 	local callback_called = false
 
+	---Safe callback to prevent multiple callbacks
+	---@param result string|nil The file path or nil
 	local function safe_callback(result)
 		if not callback_called then
 			callback_called = true

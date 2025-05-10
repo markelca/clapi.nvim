@@ -1,7 +1,9 @@
 local Parser = require("clapi.parser.__parser")
 
+---@class PhpParser : Parser
 local PhpParser = Parser:new()
 
+---Get visibility modifier of a node
 ---@param node TSNode The treesitter node of the visibility modifier
 ---@param bufnr integer The buffer number of the source file
 ---@return string visibility The visibility modifier of the node
@@ -15,10 +17,12 @@ function PhpParser.get_visibility(node, bufnr)
 	return "public" -- Public by default (TODO: review this wih more languages)
 end
 
----@param node TSNode
----@param start_col integer
----@param start_row integer
----@param opts table
+---Parse a method node
+---@param node TSNode The treesitter node of the method
+---@param start_col integer Starting column of the node
+---@param start_row integer Starting row of the node
+---@param opts table Additional options
+---@return table MethodInfo Method information
 function PhpParser.parse_method(node, start_col, start_row, opts)
 	local visibility = PhpParser.get_visibility(node:parent(), opts.bufnr)
 	local text = vim.treesitter.get_node_text(node, opts.bufnr)
@@ -32,10 +36,12 @@ function PhpParser.parse_method(node, start_col, start_row, opts)
 	}
 end
 
----@param node TSNode
----@param start_col integer
----@param start_row integer
----@param opts table
+---Parse a constant node
+---@param node TSNode The treesitter node of the constant
+---@param start_col integer Starting column of the node
+---@param start_row integer Starting row of the node
+---@param opts table Additional options
+---@return table ConstantInfo Constant information
 function PhpParser.parse_constant(node, start_col, start_row, opts)
 	local text = vim.treesitter.get_node_text(node, opts.bufnr)
 	local visibility = PhpParser.get_visibility(node:parent():parent(), opts.bufnr)
@@ -49,10 +55,12 @@ function PhpParser.parse_constant(node, start_col, start_row, opts)
 	}
 end
 
----@param node TSNode
----@param start_col integer
----@param start_row integer
----@param opts table
+---Parse a property node
+---@param node TSNode The treesitter node of the property
+---@param start_col integer Starting column of the node
+---@param start_row integer Starting row of the node
+---@param opts table Additional options
+---@return table PropertyInfo Property information
 function PhpParser.parse_property(node, start_col, start_row, opts)
 	local parent = node:parent()
 	local prop_parent = parent

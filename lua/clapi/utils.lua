@@ -1,8 +1,12 @@
+---@class Utils
 local utils = {}
 
 --- Clapi Wrapper around vim.notify
----@param funname string: name of the function that will be
----@param opts table: opts.level string, opts.msg string, opts.once bool
+---@param funname string Name of the function that will be logged
+---@param opts table Options for notification
+---@param opts.level string The log level (ERROR, WARN, INFO, DEBUG, TRACE)
+---@param opts.msg string The message to display
+---@param opts.once? boolean Whether to only notify once, defaults to false
 function utils.notify(funname, opts)
 	opts.once = vim.F.if_nil(opts.once, false)
 	local level = vim.log.levels[opts.level]
@@ -15,6 +19,9 @@ function utils.notify(funname, opts)
 	})
 end
 
+---Read file contents from a path
+---@param path string The path to the file
+---@return string|nil content The file content or nil if file doesn't exist
 function utils.read_file(path)
 	-- Check if the file exists
 	if vim.fn.filereadable(path) == 0 then
@@ -29,7 +36,9 @@ function utils.read_file(path)
 	return content
 end
 
----@param filepath string
+---Get the file extension from a filepath
+---@param filepath string The path to the file
+---@return string|nil extension The file extension or nil if not found
 function utils.get_file_extension(filepath)
 	-- Find the last dot position
 	local lastDotIndex = filepath:match("^.+()%.%w+$")

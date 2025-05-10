@@ -1,7 +1,9 @@
 local utils = require("clapi.utils")
 
----@param lang string
----@param query_group string
+---Get a treesitter query for a specific language and query group
+---@param lang string The language to get the query for
+---@param query_group string The query group name (e.g., "locals", "parent")
+---@return string|nil query The query string or nil if not found
 return function(lang, query_group)
 	-- TODO: nil check
 	local results = vim.api.nvim_get_runtime_file(string.format("queries/%s/%s.scm", lang, query_group), true)

@@ -4,9 +4,11 @@ local tsparsers = require("nvim-treesitter.parsers")
 local async = require("plenary.async")
 local lsp = require("clapi.lsp")
 
+---@class ParserModule
 local M = {}
 
----@param lang string
+---Get a parser for a specific language
+---@param lang string Language name
 ---@return Parser|nil
 local function get_parser(lang)
 	if not lang then
@@ -17,6 +19,7 @@ local function get_parser(lang)
 		return
 	end
 
+	---@type table<string, Parser>
 	local parsers = {
 		["php"] = require("clapi.parser.__parser_php"),
 		["java"] = require("clapi.parser.__parser_java"),
@@ -34,8 +37,11 @@ local function get_parser(lang)
 
 	return parser:new()
 end
----
----@param opts table
+
+---Get parent class file and parse its definitions
+---@param opts table Options for parsing
+---@param opts.bufnr? integer Buffer number, defaults to current buffer (0)
+---@return table|nil definitions List of definitions from parent class or nil if error
 local get_parent_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
@@ -89,7 +95,7 @@ local get_parent_file = async.wrap(function(opts, callback)
 	local result = {}
 
 	async.run(function()
-		for id, node, metadata in query:iter_captures(root, opts.bufnr) do
+		for id, node, _ in query:iter_captures(root, opts.bufnr) do
 			local capture_name = query.captures[id]
 			if capture_name == "parent" then
 				local line, char = node:start()
@@ -114,7 +120,14 @@ local get_parent_file = async.wrap(function(opts, callback)
 	end)
 end, 2)
 
----@param opts table
+---Parse a file for LSP symbols
+---@param opts table Options for parsing
+---@param opts.filename? string Path to the file (cannot be used with bufnr)
+---@param opts.bufnr? integer Buffer number (cannot be used with filename)
+---@param opts.class_name? string Name of the class to filter results
+---@param opts.filetype? string Force filetype instead of detecting from extension
+---@param opts.query_str? string Custom query string instead of loading from queries
+---@return table|nil results List of symbols found or nil if error
 M.parse_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.class_name = opts.class_name and string.format("%s::", opts.class_name) or ""

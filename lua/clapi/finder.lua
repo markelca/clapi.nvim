@@ -5,8 +5,15 @@ local make_entry = require("clapi.make_entry")
 local parser = require("clapi.parser.init")
 local async = require("plenary.async")
 
+---@class FinderModule
 local M = {}
 
+---Build and display a telescope picker with module interface
+---@param opts? table Configuration options
+---@param opts.bufnr? integer Buffer number, defaults to current buffer (0)
+---@param opts.path_display? table|string How to display paths
+---@param opts.entry_maker? function Custom entry maker function
+---@return nil
 M.builtin = function(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0

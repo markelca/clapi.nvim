@@ -1,8 +1,10 @@
 local Parser = require("clapi.parser.__parser")
 
+---@class JavaParser : Parser
 local JavaParser = Parser:new()
 
----@param node TSNode The treesitter node of the visibility modifier
+---Extract visibility from Java modifiers
+---@param node TSNode The treesitter node containing modifiers
 ---@param bufnr integer The buffer number of the source file
 ---@return string visibility The visibility modifier of the node
 local function _get_visibility_from_modifiers(node, bufnr)
@@ -21,6 +23,7 @@ local function _get_visibility_from_modifiers(node, bufnr)
 	return "private"
 end
 
+---Get visibility modifier of a node
 ---@param node TSNode The treesitter node of the visibility modifier
 ---@param bufnr integer The buffer number of the source file
 ---@return string visibility The visibility modifier of the node
@@ -34,10 +37,12 @@ function JavaParser.get_visibility(node, bufnr)
 	return "private"
 end
 
----@param node TSNode
----@param start_col integer
----@param start_row integer
----@param opts table
+---Parse a property node
+---@param node TSNode The treesitter node of the property
+---@param start_col integer Starting column of the node
+---@param start_row integer Starting row of the node
+---@param opts table Additional options
+---@return table PropertyInfo Property information
 function JavaParser.parse_property(node, start_col, start_row, opts)
 	local visibility = JavaParser.get_visibility(node:parent():parent(), opts.bufnr)
 	local text = vim.treesitter.get_node_text(node, opts.bufnr)
@@ -51,10 +56,12 @@ function JavaParser.parse_property(node, start_col, start_row, opts)
 	}
 end
 
----@param node TSNode
----@param start_col integer
----@param start_row integer
----@param opts table
+---Parse a method node
+---@param node TSNode The treesitter node of the method
+---@param start_col integer Starting column of the node
+---@param start_row integer Starting row of the node
+---@param opts table Additional options
+---@return table MethodInfo Method information
 function JavaParser.parse_method(node, start_col, start_row, opts)
 	local visibility = JavaParser.get_visibility(node:parent(), opts.bufnr)
 	local text = vim.treesitter.get_node_text(node, opts.bufnr)

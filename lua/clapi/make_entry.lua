@@ -5,8 +5,10 @@ local make_entry = require("telescope.make_entry")
 local utils = require("telescope.utils")
 local entry_display = require("telescope.pickers.entry_display")
 
+---@class MakeEntry
 local M = {}
 
+---@type table<string, string>
 local lsp_type_highlight = {
 	["Class"] = "TelescopeResultsClass",
 	["Constant"] = "TelescopeResultsConstant",
@@ -18,8 +20,12 @@ local lsp_type_highlight = {
 	["Variable"] = "TelescopeResultsVariable",
 }
 
+---Get the filename function with caching
+---@return function
 local get_filename_fn = function()
 	local bufnr_name_cache = {}
+	---@param bufnr? integer Buffer number
+	---@return string filename
 	return function(bufnr)
 		bufnr = vim.F.if_nil(bufnr, 0)
 		local c = bufnr_name_cache[bufnr]
@@ -33,6 +39,15 @@ local get_filename_fn = function()
 	end
 end
 
+---Generate an entry function for LSP symbols with visibility
+---@param opts? table Options for customizing entry display
+---@param opts.bufnr? integer Buffer number
+---@param opts.symbol_width? integer Width for symbol columns
+---@param opts.symbol_type_width? integer Width for symbol type column
+---@param opts.fname_width? integer Width for filename column
+---@param opts.show_line? boolean Whether to show the line content
+---@param opts.symbol_highlights? table<string, string> Custom highlights for symbol types
+---@return function entry_maker Function to create entries
 function M.gen_from_lsp_symbols(opts)
 	opts = opts or {}
 
@@ -64,6 +79,9 @@ function M.gen_from_lsp_symbols(opts)
 	})
 	local type_highlight = vim.F.if_nil(opts.symbol_highlights or lsp_type_highlight)
 
+	---Create display for an entry
+	---@param entry table The entry to display
+	---@return string
 	local make_display = function(entry)
 		local msg
 
@@ -96,6 +114,8 @@ function M.gen_from_lsp_symbols(opts)
 	end
 
 	local get_filename = get_filename_fn()
+	---@param entry table Raw entry from finder
+	---@return table Processed entry
 	return function(entry)
 		local filename = vim.F.if_nil(entry.filename, get_filename(entry.bufnr))
 		local symbol_msg = entry.text
