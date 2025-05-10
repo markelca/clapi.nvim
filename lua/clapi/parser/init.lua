@@ -46,7 +46,14 @@ end
 local get_parent_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
-	opts.show_inherited = vim.F.if_nil(opts.show_inherited, true)
+	-- Use explicit check for boolean values since vim.F.if_nil doesn't handle false properly
+	if opts.show_inherited ~= nil then
+		-- Keep the provided value (could be true or false)
+		opts.show_inherited = opts.show_inherited
+	else
+		-- Default to true if not specified
+		opts.show_inherited = true
+	end
 
 	local filetype = tsparsers.get_buf_lang(opts.bufnr)
 	local parser = vim.treesitter.get_parser(opts.bufnr, filetype)
@@ -114,7 +121,7 @@ local get_parent_file = async.wrap(function(opts, callback)
 				local defs = M.parse_file({
 					filename = filepath,
 					class_name = class_name,
-					show_inherited = opts.show_inherited
+					show_inherited = opts.show_inherited,
 				})
 				for _, value in pairs(defs) do
 					if value["visibility"] ~= "private" then
@@ -139,7 +146,6 @@ end, 2)
 M.parse_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.class_name = opts.class_name and string.format("%s::", opts.class_name) or ""
-	opts.show_inherited = vim.F.if_nil(opts.show_inherited, true)
 
 	if opts.filename and opts.bufnr then
 		utils.notify("parse_file", {
@@ -270,9 +276,9 @@ M.parse_file = async.wrap(function(opts, callback)
 	-- Only include inherited members if show_inherited is true
 	if opts.show_inherited then
 		async.run(function()
-			local parent_defs = get_parent_file({ 
+			local parent_defs = get_parent_file({
 				bufnr = opts.bufnr,
-				show_inherited = opts.show_inherited
+				show_inherited = opts.show_inherited,
 			})
 			if not parent_defs then
 				-- error already printed somewhere
@@ -291,3 +297,4 @@ M.parse_file = async.wrap(function(opts, callback)
 end, 2)
 
 return M
+

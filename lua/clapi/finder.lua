@@ -1,4 +1,4 @@
-local conf = require("telescope.config").values
+local telescope_config = require("telescope.config").values
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local make_entry = require("clapi.make_entry")
@@ -20,13 +20,6 @@ M.builtin = function(opts)
 	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
 
-	-- Get extension configuration
-	local telescope_config = require("telescope.config").values
-	local ext_config = telescope_config.extensions and telescope_config.extensions.clapi or {}
-
-	-- Set show_inherited default value (true if not specified)
-	opts.show_inherited = vim.F.if_nil(opts.show_inherited, ext_config.show_inherited, true)
-
 	async.run(function()
 		local results = parser.parse_file(opts)
 		if not results then
@@ -41,10 +34,10 @@ M.builtin = function(opts)
 					results = results,
 					entry_maker = opts.entry_maker or make_entry.gen_from_lsp_symbols(opts),
 				}),
-				previewer = conf.qflist_previewer(opts),
-				sorter = conf.prefilter_sorter({
+				previewer = telescope_config.qflist_previewer(opts),
+				sorter = telescope_config.prefilter_sorter({
 					tag = "symbol_type",
-					sorter = conf.generic_sorter(opts),
+					sorter = telescope_config.generic_sorter(opts),
 				}),
 				push_cursor_on_edit = true,
 				push_tagstack_on_edit = true,
