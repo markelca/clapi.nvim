@@ -1,6 +1,8 @@
 # clapi.nvim
 
 The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers to show document symbols don't include the items' visibility modifiers. This extension provides a picker including them, so you can display and navigate the class/module interface easily.
+
+The plugin analyzes the entire class/module hierarchy, including parent classes, traits, interfaces, and other inherited elements, giving you a complete view of the API surface.
 ![demo.gif](https://github.com/user-attachments/assets/e9ddda56-912d-4475-b7d6-94c573939db6)
 
 ## Installation

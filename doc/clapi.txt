@@ -1,0 +1,167 @@
+*clapi.txt*  Class API viewer for Neovim
+
+==============================================================================
+CONTENTS                                                      *clapi-contents*
+
+  1. Introduction ........................... |clapi-introduction|
+  2. Requirements ........................... |clapi-requirements|
+  3. Installation ........................... |clapi-installation|
+  4. Usage .................................. |clapi-usage|
+  5. Configuration .......................... |clapi-configuration|
+  6. Commands ............................... |clapi-commands|
+  7. API .................................... |clapi-api|
+  8. Supported Languages .................... |clapi-languages|
+  9. Examples ............................... |clapi-examples|
+ 10. About .................................. |clapi-about|
+
+==============================================================================
+1. INTRODUCTION                                           *clapi-introduction*
+
+CLAPI (Class API) is a telescope.nvim extension that provides enhanced document
+symbol navigation with visibility modifiers (public, protected, private). This
+makes it easier to browse and understand class interfaces.
+
+The plugin analyzes the entire class/module hierarchy, including parent classes,
+traits, interfaces, and other inherited elements, giving you a complete view of
+the available API surface.
+
+While the built-in telescope.nvim document symbols picker doesn't include
+visibility modifiers, clapi adds them to the display, allowing you to quickly
+see which methods and properties are part of the public API of your classes.
+
+==============================================================================
+2. REQUIREMENTS                                           *clapi-requirements*
+
+The following dependencies are required:
+
+  - nvim-telescope/telescope.nvim
+  - nvim-treesitter/nvim-treesitter
+  - nvim-lua/plenary.nvim 
+  - LSP server configured for your language
+
+==============================================================================
+3. INSTALLATION                                           *clapi-installation*
+
+Using lazy.nvim: >lua
+  {
+    'markelca/clapi.nvim',
+    dependencies = {
+      'nvim-telescope/telescope.nvim',
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-lua/plenary.nvim',
+    },
+    config = function()
+      -- Enable the clapi extension
+      pcall(require('telescope').load_extension('clapi'))
+
+      -- Optionally set up a keymap
+      vim.keymap.set('n', '<leader>sa', require('clapi').builtin, 
+                     { desc = '[S]earch [A]pi' })
+
+      -- Configure the extension
+      require('telescope').setup {
+        extensions = {
+          clapi = {},
+        },
+      }
+    end,
+  }
+<
+
+==============================================================================
+4. USAGE                                                       *clapi-usage*
+
+After installation, you can use the picker with one of the following methods:
+
+Command: >
+  :Telescope clapi
+<
+
+Lua: >
+  :lua require('clapi').builtin()
+<
+
+Or using your configured keymap (if set).
+
+When the picker opens, you can:
+- Navigate through the list of class members and methods
+- See the visibility (public, protected, private) of each item
+- Browse the complete class hierarchy including inherited members from parent classes,
+  traits, and interfaces
+- Type to filter
+- Press <Enter> to jump to the selected item
+
+==============================================================================
+5. CONFIGURATION                                         *clapi-configuration*
+
+The clapi picker accepts the following options:
+
+  - `bufnr`: Buffer number (defaults to current buffer)
+  - `path_display`: How to display paths
+  - `entry_maker`: Custom entry maker function
+
+Example configuration: >lua
+  require('telescope').setup {
+    extensions = {
+      clapi = {
+        -- Default configuration options
+      },
+    },
+  }
+<
+
+==============================================================================
+6. COMMANDS                                                  *clapi-commands*
+
+*:Telescope clapi*
+    Opens the class API picker for the current buffer.
+
+==============================================================================
+7. API                                                           *clapi-api*
+
+*require('clapi').builtin([opts])*
+
+Opens the telescope picker with module interface.
+
+Parameters:
+  - `opts` (table, optional): Configuration options
+    - `bufnr` (number, optional): Buffer number, defaults to current buffer (0)
+    - `path_display` (table|string, optional): How to display paths
+    - `entry_maker` (function, optional): Custom entry maker function
+
+Returns: nil
+
+==============================================================================
+8. SUPPORTED LANGUAGES                                    *clapi-languages*
+
+Currently supported languages:
+  - PHP
+  - Java
+
+==============================================================================
+9. EXAMPLES                                                  *clapi-examples*
+
+Basic usage: >lua
+  -- Map a key to open the API picker
+  vim.keymap.set('n', '<leader>sa', require('clapi').builtin, 
+                 { desc = '[S]earch [A]pi' })
+<
+
+Advanced usage with custom options: >lua
+  -- Open the API picker with specific options
+  require('clapi').builtin({
+    path_display = { "smart" }
+  })
+<
+
+==============================================================================
+10. ABOUT                                                      *clapi-about*
+
+clapi.nvim is developed by Markel Cuesta
+GitHub: https://github.com/markelca/clapi.nvim
+
+For issues and feature requests, please visit:
+https://github.com/markelca/clapi.nvim/issues
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
