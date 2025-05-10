@@ -11,7 +11,7 @@ vim.opt.runtimepath:append("~/.local/share/nvim/lazy/cmp-nvim-lsp")
 vim.opt.runtimepath:append("~/.local/share/nvim/lazy/nvim-cmp")
 vim.opt.runtimepath:append("~/.local/share/nvim/lazy/nvim-lspconfig")
 
-require("nvim-treesitter.install").ensure_installed_sync("php")
+require("nvim-treesitter.install").ensure_installed_sync({ "php", "java" })
 -- Install parsers
 require("cmp").setup({
 	sources = {
@@ -24,7 +24,7 @@ require("mason").setup({
 	install_root_dir = vim.fn.expand("~/.local/share/nvim/mason"),
 })
 
-local lsp_list = { "phpactor", "java-language-server" }
+local lsp_list = { "jdtls", "phpactor" }
 
 print("Installing LSPs...")
 -- Force synchronous installation
@@ -63,7 +63,7 @@ for _, lsp in ipairs(lsp_list) do
 
 		-- Wait for installation to complete with timeout
 		local start_time = vim.loop.now()
-		local timeout = 60000 -- 60 seconds
+		local timeout = 60000 -- in milliseconds
 
 		while not installation_complete do
 			vim.wait(1000) -- Check every second
@@ -79,4 +79,3 @@ for _, lsp in ipairs(lsp_list) do
 		end
 	end
 end
-
