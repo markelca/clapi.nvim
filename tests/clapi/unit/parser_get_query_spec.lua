@@ -1,7 +1,7 @@
-local treesitter = require("clapi.parsers")
+local __get_query = require("clapi.parser.__get_query")
 local utils = require("clapi.utils")
 
-describe("treesitter.get_query", function()
+describe("parser.get_query", function()
 	it("should return nil when no query is found", function()
 		-- Mock vim.api.nvim_get_runtime_file to return empty results
 		local original_get_runtime_file = vim.api.nvim_get_runtime_file
@@ -9,7 +9,7 @@ describe("treesitter.get_query", function()
 			return {}
 		end
 
-		local result = treesitter.get_query("not_a_lang", "not_a_query")
+		local result = __get_query("not_a_lang", "not_a_query")
 
 		-- Restore original function
 		vim.api.nvim_get_runtime_file = original_get_runtime_file
@@ -33,7 +33,7 @@ describe("treesitter.get_query", function()
 			return "((method_declaration name: (name) @method_name))"
 		end
 
-		local result = treesitter.get_query("php", "locals")
+		local result = __get_query("php", "locals")
 
 		-- Restore original functions
 		vim.api.nvim_get_runtime_file = original_get_runtime_file
@@ -64,7 +64,7 @@ describe("treesitter.get_query", function()
 			return "query content"
 		end
 
-		treesitter.get_query("php", "locals")
+		__get_query("php", "locals")
 
 		-- Restore original functions
 		vim.api.nvim_get_runtime_file = original_get_runtime_file

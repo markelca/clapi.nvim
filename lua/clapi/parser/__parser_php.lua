@@ -1,10 +1,6 @@
-local Parser = require("clapi.parsers")
+local Parser = require("clapi.parser.__parser")
 
 local PhpParser = Parser:new()
-
-function PhpParser.hi()
-	print("Hi from php!")
-end
 
 ---@param node TSNode The treesitter node of the visibility modifier
 ---@param bufnr integer The buffer number of the source file

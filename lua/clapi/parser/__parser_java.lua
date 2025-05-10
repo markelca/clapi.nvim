@@ -1,15 +1,11 @@
-local Parser = require("clapi.parsers")
+local Parser = require("clapi.parser.__parser")
 
 local JavaParser = Parser:new()
 
-function JavaParser.hi()
-	print("Hi from java!")
-end
-
 ---@param node TSNode The treesitter node of the visibility modifier
 ---@param bufnr integer The buffer number of the source file
----@return string|nil visibility The visibility modifier of the node
-function JavaParser.get_visibility_from_modifiers(node, bufnr)
+---@return string visibility The visibility modifier of the node
+local function _get_visibility_from_modifiers(node, bufnr)
 	local modifiers = vim.treesitter.get_node_text(node, bufnr)
 
 	for word in string.gmatch(modifiers, "%S+") do
@@ -22,6 +18,7 @@ function JavaParser.get_visibility_from_modifiers(node, bufnr)
 			return word
 		end
 	end
+	return "private"
 end
 
 ---@param node TSNode The treesitter node of the visibility modifier
@@ -30,11 +27,11 @@ end
 function JavaParser.get_visibility(node, bufnr)
 	for n, _ in node:iter_children() do
 		local type = n:type()
-		if type == "modifiers" then -- TODO: make this line language agnostic
-			return JavaParser.get_visibility_from_modifiers(n, bufnr)
+		if type == "modifiers" then
+			return _get_visibility_from_modifiers(n, bufnr)
 		end
 	end
-	return "public" -- Public by default (TODO: review this wih more languages)
+	return "private"
 end
 
 ---@param node TSNode

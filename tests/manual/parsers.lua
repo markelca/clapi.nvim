@@ -1,4 +1,4 @@
-local Parser = require("clapi.parsers")
+local Parser = require("clapi.parser.init")
 
 local p = Parser.get_parser("java")
 

@@ -19,7 +19,7 @@ public final class Course extends AggregateRoot {
     public void foo() {
     }
 
-    private String bar() {
+    String bar() {
         return "bar";
     }
 

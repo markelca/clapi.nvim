@@ -1,7 +1,7 @@
-local treesitter = require("clapi.parsers")
+local parser = require("clapi.parser.init")
 local t = require("plenary.async.tests")
 
-t.describe("treesitter.parse_file", function()
+t.describe("parser.parse_file", function()
 	t.it("should parse methods from a PHP file", function()
 		local src_root_dir = vim.fn.getcwd() .. "/tests/clapi/functional/resources/code/php/example/src"
 		local filename = src_root_dir .. "/Course/Course.php"
@@ -16,7 +16,7 @@ t.describe("treesitter.parse_file", function()
 		vim.lsp.buf_attach_client(bufnr, client_id)
 		vim.wait(3000)
 
-		local result = treesitter.parse_file({
+		local result = parser.parse_file({
 			bufnr = bufnr,
 		})
 

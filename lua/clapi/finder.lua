@@ -2,7 +2,7 @@ local conf = require("telescope.config").values
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local make_entry = require("clapi.make_entry")
-local treesitter = require("clapi.parsers")
+local parser = require("clapi.parser.init")
 local async = require("plenary.async")
 
 local M = {}
@@ -12,7 +12,7 @@ M.builtin = function(opts)
 	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
 	async.run(function()
-		local results = treesitter.parse_file(opts)
+		local results = parser.parse_file(opts)
 		if not results then
 			-- error message already printed inside the `parse_file` function
 			return
