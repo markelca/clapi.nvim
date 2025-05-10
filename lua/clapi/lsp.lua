@@ -24,10 +24,21 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 		return
 	end
 
+	local clients = vim.lsp.get_clients({ bufnr = opts.bufnr })
+	if #clients == 0 then
+		utils.notify("get_file_from_position", {
+			msg = "Lsp is not attached",
+			level = "ERROR",
+		})
+		callback(nil)
+		return
+	end
+
 	local callback_called = false
 
 	---Safe callback to prevent multiple callbacks
 	---@param result string|nil The file path or nil
+	---FIX: Accumulate results on multiple callbacks instead of ignoring them
 	local function safe_callback(result)
 		if not callback_called then
 			callback_called = true
@@ -40,27 +51,38 @@ M.get_file_from_position = async.wrap(function(opts, callback)
 		end
 	end
 
-	vim.lsp.buf_request(opts.bufnr, "textDocument/definition", {
+	vim.lsp.buf_request_all(opts.bufnr, "textDocument/definition", {
 		position = opts.position,
 		textDocument = {
 			uri = string.format("file://%s", vim.api.nvim_buf_get_name(opts.bufnr)),
 		},
-	}, function(err, result, _, _)
-		if err or not result then
-			utils.notify("get_parent_file", {
-				msg = "Couldn't get the file for the parent class",
-				level = "ERROR",
-			})
-			callback(nil)
-			return
-		end
+	}, function(results)
+		for _, result_entry in pairs(results) do
+			if result_entry.error then
+				utils.notify("get_parent_file", {
+					msg = "Couldn't get the file for the parent class: " .. result_entry.error.message,
+					level = "ERROR",
+				})
+				callback(nil)
+				return
+			else
+				if result_entry.result == nil then
+					utils.notify("get_parent_file", {
+						msg = "Couldn't get the file for the parent class",
+						level = "WARN",
+					})
+				else
+					local result = result_entry.result
 
-		local uri = result.uri or result[1].uri or result[1].targetUri
+					local uri = result.uri or result[1].uri or result[1].targetUri
 
-		if uri then
-			safe_callback(vim.uri_to_fname(uri))
-		else
-			safe_callback(nil)
+					if uri then
+						safe_callback(vim.uri_to_fname(uri))
+					else
+						safe_callback(nil)
+					end
+				end
+			end
 		end
 	end)
 end, 2)

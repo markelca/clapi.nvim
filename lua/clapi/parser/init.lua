@@ -46,14 +46,6 @@ end
 local get_parent_file = async.wrap(function(opts, callback)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
-	-- Use explicit check for boolean values since vim.F.if_nil doesn't handle false properly
-	if opts.show_inherited ~= nil then
-		-- Keep the provided value (could be true or false)
-		opts.show_inherited = opts.show_inherited
-	else
-		-- Default to true if not specified
-		opts.show_inherited = true
-	end
 
 	local filetype = tsparsers.get_buf_lang(opts.bufnr)
 	local parser = vim.treesitter.get_parser(opts.bufnr, filetype)
@@ -63,6 +55,7 @@ local get_parent_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	-- Parse the query
@@ -74,6 +67,7 @@ local get_parent_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	local query = vim.treesitter.query.parse(filetype, query_str)
@@ -84,6 +78,7 @@ local get_parent_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	-- Parse the content
@@ -95,6 +90,7 @@ local get_parent_file = async.wrap(function(opts, callback)
 			level = "ERROR",
 		})
 		callback(nil)
+		return
 	end
 
 	tree = tree[1]
@@ -116,14 +112,16 @@ local get_parent_file = async.wrap(function(opts, callback)
 				if not filepath or filepath == "" then
 					-- error already printed in get_file_from_position
 					callback(nil)
+					return
 				end
+				vim.print("fp", filepath)
 				-- Pass the show_inherited option to parse_file for recursive parent parsing
 				local defs = M.parse_file({
 					filename = filepath,
 					class_name = class_name,
 					show_inherited = opts.show_inherited,
 				})
-				for _, value in pairs(defs) do
+				for _, value in pairs(defs or {}) do
 					if value["visibility"] ~= "private" then
 						table.insert(result, value)
 					end
@@ -165,6 +163,11 @@ M.parse_file = async.wrap(function(opts, callback)
 	end
 
 	if not opts.filetype then
+		if not opts.filename then
+			callback(nil)
+			return
+		end
+
 		local filetype = utils.get_file_extension(opts.filename)
 		if not filetype then
 			utils.notify("parse_file", {
@@ -297,4 +300,3 @@ M.parse_file = async.wrap(function(opts, callback)
 end, 2)
 
 return M
-

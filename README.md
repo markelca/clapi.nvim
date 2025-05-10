@@ -5,15 +5,6 @@ The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers t
 The plugin analyzes the entire class/module hierarchy, including parent classes, traits, interfaces, and other inherited elements, giving you a complete view of the API surface.
 ![demo.gif](https://github.com/user-attachments/assets/e9ddda56-912d-4475-b7d6-94c573939db6)
 
-## Features
-
-- **Complete API view**: Display all class/module members including inherited elements
-- **Visibility indicators**: Shows access modifiers (public, private, protected) for each member
-- **Hierarchical analysis**: Understands inheritance from parent classes, traits, and interfaces
-- **Fast navigation**: Quickly jump to any symbol definition
-- **Integration with LSP**: Works alongside your language server for accurate symbol information
-- **Telescope integration**: Familiar fuzzy-finding interface for efficient filtering
-
 ## Supported Languages
 
 - PHP
@@ -30,37 +21,36 @@ The plugin analyzes the entire class/module hierarchy, including parent classes,
 ## Installation
 Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
-{
+{ -- Add the clapi plugin with its dependencies
   'markelca/clapi.nvim',
-  -- Dev Mode (Clone the repo, update the `dir` value and uncomment the two lines below)
-  -- dir = '~/<dir-where-you-cloned>/clapi.nvim/',
-  -- name = 'clapi',
   dependencies = {
     'nvim-telescope/telescope.nvim',
     'nvim-treesitter/nvim-treesitter',
     'nvim-lua/plenary.nvim',
   },
+},
+{ -- Add the following to your telescope configuration
+  'nvim-telescope/telescope.nvim',
   config = function()
-    -- Enable the clapi extension adding the following line to your telescope configuration:
-    pcall(require('telescope').load_extension 'clapi')
-
-    -- Optionally you can set up a keymap to run the picker
-    vim.keymap.set('n', '<leader>sa', require('clapi').builtin, { desc = '[S]earch [A]pi' })
-
-    -- Configurations for the clapi picker
     require('telescope').setup {
       extensions = {
+      -- Configurations for the clapi picker
         clapi = {
-          -- Additional options can be configured here
-          -- show_inherited = true, -- Set to false to only show members defined in the current class
-          -- default_visibility = "public", -- Filter by default visibility (public, protected, private)
+          show_inherited = true, -- Set to false to only show members defined in the current class
+          default_visibility = "public", -- Filter by default visibility (public, protected, private)
         },
       },
     }
+    -- Enable the clapi extension
+    pcall(require('telescope').load_extension 'clapi')
+    -- Optionally you can set up a keymap to run the picker
+    vim.keymap.set('n', '<leader>sa', require('clapi').builtin, { desc = '[S]earch [A]pi' })
   end,
 }
 ```
-Full example in my nvim config repository: [nvim](https://github.com/MarkelCA/nvim/blob/master/lua/plugins/clapi.lua)
+Full example in my [nvim](https://github.com/markelca/nvim) config repository: 
+- [clapi](https://github.com/markelca/nvim/blob/master/lua/plugins/clapi.lua)
+- [telescope](https://github.com/markelca/nvim/blob/master/lua/plugins/telescope.lua)
 
 ## Usage
 
