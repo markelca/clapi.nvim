@@ -63,7 +63,7 @@ for _, lsp in ipairs(lsp_list) do
 
 		-- Wait for installation to complete with timeout
 		local start_time = vim.loop.now()
-		local timeout = 60000 -- in milliseconds
+		local timeout = 120000 -- in milliseconds
 
 		while not installation_complete do
 			vim.wait(1000) -- Check every second

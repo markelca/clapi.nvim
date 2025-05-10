@@ -28,8 +28,13 @@ jobs:
           git clone --depth 1 https://github.com/hrsh7th/nvim-cmp.git ~/.local/share/nvim/site/pack/vendor/start/nvim-cmp.git
           git clone --depth 1 https://github.com/hrsh7th/cmp-nvim-lsp.git ~/.local/share/nvim/site/pack/vendor/start/cmp-nvim-lsp.git
           sudo apt update -y
-          sudo apt install build-essential php php-xml composer openjdk-21-jdk -y
+          sudo apt install build-essential php php-xml composer openjdk-21-jdk -y --reinstall
       - name: Run Unit Tests
         run: make test-unit
       - name: Run Functional Tests
         run: make test-functional
+      - name: debug
+        if: always()
+        run: |
+          sudo cat ~/.local/state/nvim/lsp.log
+          java --version
