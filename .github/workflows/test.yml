@@ -16,6 +16,22 @@ jobs:
         with:
           neovim: true
           version: stable
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          # cache: 'maven'  # Change to 'gradle' if using Gradle
+      
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: xml
+          coverage: none  # Options: none, xdebug, pcov
+          tools: composer:v2
+
       - name: Install dependencies
         run: |
           git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
@@ -36,5 +52,5 @@ jobs:
       - name: debug
         if: always()
         run: |
-          sudo cat ~/.local/state/nvim/lsp.log
+          # sudo cat ~/.local/state/nvim/lsp.log
           java --version
