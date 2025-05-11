@@ -5,7 +5,6 @@ describe("gen_from_lsp_symbols", function()
 		-- Setup mock data
 		local opts = {
 			bufnr = 1,
-			path_display = { "hidden" },
 		}
 
 		-- Mock vim.api functions
@@ -54,7 +53,6 @@ describe("gen_from_lsp_symbols", function()
 		-- Setup mock data
 		local opts = {
 			bufnr = 1,
-			path_display = { "hidden" },
 		}
 
 		-- Mock vim.api functions
@@ -93,11 +91,10 @@ describe("gen_from_lsp_symbols", function()
 		vim.api.nvim_buf_get_name = original_buf_get_name
 	end)
 
-	it("should handle path display correctly", function()
-		-- Setup mock data with visible paths
+	it("should handle filename display correctly", function()
+		-- Setup mock data
 		local opts = {
 			bufnr = 1,
-			path_display = { "smart" }, -- Not "hidden"
 		}
 
 		-- Mock vim.api functions
