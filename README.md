@@ -1,8 +1,18 @@
 # clapi.nvim
 
-The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers to show document symbols don't include the items' visibility modifiers. This extension provides a picker including them, so you can display and navigate the class/module interface easily.
+This is a Neovim plugin that analyzes the entire class/module hierarchy, including the document symbols of parent classes, traits, interfaces, and other inherited elements, giving you a complete view of the API surface.
 
-The plugin analyzes the entire class/module hierarchy, including parent classes, traits, interfaces, and other inherited elements, giving you a complete view of the API surface.
+**Why this project?**  
+The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers to show document symbols don't include the items' visibility modifiers. This is a fundamental feature to reason about the interfaces you're exposing in order to design a well-architected codebase. Without visibility information, it's difficult to:
+
+- Understand which methods and properties are part of the public API
+- Identify protected members available to subclasses
+- Distinguish between implementation details and interface contracts
+
+clapi.nvim solves this by providing a complete picture of your class interfaces, making proper API design and navigation significantly easier.  
+
+---
+
 ![demo.gif](https://github.com/user-attachments/assets/e9ddda56-912d-4475-b7d6-94c573939db6)
 
 ## Supported Languages
@@ -102,15 +112,18 @@ require('telescope').setup {
 ## Troubleshooting
 
 **Q: No symbols are displayed for my file**  
-A: Make sure you have the appropriate language parser installed for treesitter:
+- A: clapi needs treesitter in order to work. The language parsers should have been installed automatically, but make sure they are available:
 ```vim
 :TSInstall php
 :TSInstall java
 ```
 
 **Q: Some inherited members are missing**  
-A: The plugin requires proper parsing of the inheritance hierarchy. Ensure your project structure allows the plugin to find parent classes and interfaces.
-A: Check that you have an LSP installed and attached to the current buffer. It may take a few seconds since you open the file.
+- A: Check that you have an LSP installed and attached to the current buffer. It may take a few seconds since you open the file.
+- A: The plugin requires proper parsing of the inheritance hierarchy. Ensure your project structure allows the LSP to find parent classes and interfaces.
+
+**Q: Where does the "clapi" name come from**  
+- A: clapi it's a silly acronym coming from Class API, in case the mnemotechnics comes useful for you :) 
 
 ## Contributing
 
