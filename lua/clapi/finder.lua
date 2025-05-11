@@ -18,6 +18,7 @@ M.builtin = function(opts)
 	-- vim.print(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
+	opts.path_display = { "hidden" }
 
 	async.run(function()
 		local results = parser.parse_file(opts)
@@ -46,3 +47,4 @@ M.builtin = function(opts)
 end
 
 return M
+
