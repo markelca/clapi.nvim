@@ -42,6 +42,7 @@ end
 ---@param opts table Options for parsing
 ---@param opts.bufnr? integer Buffer number, defaults to current buffer (0)
 ---@param opts.show_inherited? boolean Whether to include inherited members from grandparents, defaults to true
+---@param opts.visibility? string Filter by visibility (public, protected, private), defaults to nil (all)
 ---@return table|nil definitions List of definitions from parent class or nil if error
 local get_parent_file = async.wrap(function(opts, callback)
 	opts = opts or {}
@@ -114,16 +115,20 @@ local get_parent_file = async.wrap(function(opts, callback)
 					callback(nil)
 					return
 				end
-				vim.print("fp", filepath)
 				-- Pass the show_inherited option to parse_file for recursive parent parsing
 				local defs = M.parse_file({
 					filename = filepath,
 					class_name = class_name,
 					show_inherited = opts.show_inherited,
+					visibility = opts.visibility,
 				})
 				for _, value in pairs(defs or {}) do
+					-- Private members from parent classes are inaccessible
 					if value["visibility"] ~= "private" then
-						table.insert(result, value)
+						-- Apply visibility filter if specified
+						if not opts.visibility or value.visibility == opts.visibility then
+							table.insert(result, value)
+						end
 					end
 				end
 			end
@@ -140,6 +145,7 @@ end, 2)
 ---@param opts.filetype? string Force filetype instead of detecting from extension
 ---@param opts.query_str? string Custom query string instead of loading from queries
 ---@param opts.show_inherited? boolean Whether to include inherited members, defaults to true
+---@param opts.visibility? string Filter by visibility (public, protected, private), defaults to nil (all)
 ---@return table|nil results List of symbols found or nil if error
 M.parse_file = async.wrap(function(opts, callback)
 	opts = opts or {}
@@ -266,13 +272,22 @@ M.parse_file = async.wrap(function(opts, callback)
 
 		if capture_name == "method_name" then
 			local method = parser.parse_method(node, start_col, start_row, opts)
-			table.insert(result, method)
+			-- Apply visibility filter if specified
+			if not opts.visibility or method.visibility == opts.visibility then
+				table.insert(result, method)
+			end
 		elseif capture_name == "prop_name" then
 			local property = parser.parse_property(node, start_col, start_row, opts)
-			table.insert(result, property)
+			-- Apply visibility filter if specified
+			if not opts.visibility or property.visibility == opts.visibility then
+				table.insert(result, property)
+			end
 		elseif capture_name == "const_name" then
 			local const = parser.parse_constant(node, start_col, start_row, opts)
-			table.insert(result, const)
+			-- Apply visibility filter if specified
+			if not opts.visibility or const.visibility == opts.visibility then
+				table.insert(result, const)
+			end
 		end
 	end
 
@@ -282,6 +297,8 @@ M.parse_file = async.wrap(function(opts, callback)
 			local parent_defs = get_parent_file({
 				bufnr = opts.bufnr,
 				show_inherited = opts.show_inherited,
+				-- Pass visibility to parent search as well
+				visibility = opts.visibility,
 			})
 			if not parent_defs then
 				-- error already printed somewhere
@@ -289,7 +306,10 @@ M.parse_file = async.wrap(function(opts, callback)
 				return
 			end
 			for _, value in pairs(parent_defs) do
-				table.insert(result, value)
+				-- Apply visibility filter if specified
+				if not opts.visibility or value.visibility == opts.visibility then
+					table.insert(result, value)
+				end
 			end
 
 			callback(result)

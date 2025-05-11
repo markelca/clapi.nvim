@@ -47,7 +47,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
       -- Configurations for the clapi picker
         clapi = {
           show_inherited = true, -- Set to false to only show members defined in the current class
-          default_visibility = "public", -- Filter by default visibility (public, protected, private)
+          visibility = "public", -- Filter by default visibility (public, protected, private)
         },
       },
     }
@@ -97,7 +97,7 @@ require('telescope').setup {
       
       -- Default visibility filter (default: nil - show all)
       -- Can be "public", "protected", "private", or nil
-      default_visibility = nil,
+      visibility = nil,
       
       -- Additional display customization options
       display = {

@@ -14,8 +14,10 @@ local M = {}
 ---@param opts.path_display? table|string How to display paths
 ---@param opts.entry_maker? function Custom entry maker function
 ---@param opts.show_inherited? boolean Show inherited members, defaults to true
+---@param opts.visibility? string Filter by visibility (public, protected, private), defaults to nil (all)
 ---@return nil
 M.builtin = function(opts)
+	-- vim.print(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
 	opts.path_display = { "hidden" }
