@@ -9,7 +9,7 @@ The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers t
 - Identify protected members available to subclasses
 - Distinguish between implementation details and interface contracts
 
-clapi.nvim solves this by providing a complete picture of your class interfaces, making proper API design and navigation significantly easier.  
+clapi.nvim solves this by providing a complete picture of your class interface (or <ins>Cl</ins>ass <ins>API</ins>, making proper API design and navigation significantly easier.  
 
 ---
 
@@ -121,9 +121,6 @@ require('telescope').setup {
 **Q: Some inherited members are missing**  
 - A: Check that you have an LSP installed and attached to the current buffer. It may take a few seconds since you open the file.
 - A: The plugin requires proper parsing of the inheritance hierarchy. Ensure your project structure allows the LSP to find parent classes and interfaces.
-
-**Q: Where does the "clapi" name come from**  
-- A: clapi it's a silly acronym coming from Class API, in case the mnemotechnics comes useful for you :) 
 
 ## Contributing
 
