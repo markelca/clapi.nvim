@@ -45,10 +45,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
     require('telescope').setup {
       extensions = {
       -- Configurations for the clapi picker
-        clapi = {
-          show_inherited = true, -- Set to false to only show members defined in the current class
-          visibility = "public", -- Filter by default visibility (public, protected, private)
-        },
+        clapi = {},
       },
     }
     -- Enable the clapi extension
@@ -94,16 +91,9 @@ require('telescope').setup {
     clapi = {
       -- Show inherited members (default: true)
       show_inherited = true,
-      
       -- Default visibility filter (default: nil - show all)
-      -- Can be "public", "protected", "private", or nil
+      -- Examples: "public", "protected", "private"
       visibility = nil,
-      
-      -- Additional display customization options
-      display = {
-        show_filename = true,   -- Show filename in results
-        show_line_numbers = true, -- Show line numbers
-      },
     },
   },
 }

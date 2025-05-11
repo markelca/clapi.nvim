@@ -20,7 +20,7 @@ M.builtin = function(opts)
 	-- vim.print(opts)
 	opts = opts or {}
 	opts.bufnr = opts.bufnr or 0
-	opts.path_display = { "hidden" }
+	opts.path_display = { "smart" }
 
 	async.run(function()
 		local results = parser.parse_file(opts)
