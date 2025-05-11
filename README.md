@@ -9,7 +9,7 @@ The [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) pickers t
 - Identify protected members available to subclasses
 - Distinguish between implementation details and interface contracts
 
-clapi.nvim solves this by providing a complete picture of your class interface (or <ins>Cl</ins>ass <ins>API</ins>, making proper API design and navigation significantly easier.  
+clapi.nvim solves this by providing a complete picture of your class interface (or <ins>Cl</ins>ass <ins>API</ins>), making proper API design and navigation significantly easier.  
 
 ---
 
