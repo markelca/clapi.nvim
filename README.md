@@ -68,7 +68,7 @@ After installation, you can use the picker with:
 ```
 You can also add parameters
 ```vim
-:Telescope clapi show_inherited=false
+:Telescope clapi show_inherited=false visibility=public
 ```
 
 Or in Lua:
@@ -76,10 +76,11 @@ Or in Lua:
 ```lua
 -- Call the builtin directly
 :lua require('clapi').builtin()
-:lua require('clapi').builtin({show_inherited = false}) -- You can also pass options to filter the results
+:lua require('clapi').builtin({show_inherited = false, visibility = 'public'}) -- You can pass options to filter the results
 
 -- Call the extension instead. This option will use your default configurations from the telescope config
 :lua require('telescope').extensions.clapi.clapi()
+:lua require('telescope').extensions.clapi.clapi({show_inherited = false, visibility = 'public'}) -- You can also use parameters this way
 ```
 ## Configuration Options
 
