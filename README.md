@@ -44,7 +44,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim)
     -- Enable the clapi extension
     pcall(require('telescope').load_extension 'clapi')
     -- Optionally you can set up a keymap to run the picker
-    vim.keymap.set('n', '<leader>sa', require('clapi').builtin, { desc = '[S]earch [A]pi' })
+    vim.keymap.set('n', '<leader>sa', require('telescope').extensions.clapi.clapi, { desc = '[S]earch [A]pi' })
   end,
 }
 ```
@@ -59,19 +59,21 @@ After installation, you can use the picker with:
 ```vim
 :Telescope clapi
 ```
+You can also add parameters
+```vim
+:Telescope clapi show_inherited=false
+```
 
 Or in Lua:
 
 ```lua
+-- Call the builtin directly
 :lua require('clapi').builtin()
+:lua require('clapi').builtin({show_inherited = false}) -- You can also pass options to filter the results
+
+-- Call the extension instead. This option will use your default configurations from the telescope config
+:lua require('telescope').extensions.clapi.clapi()
 ```
-
-You can also pass options to filter the results:
-
-```lua
-:lua require('clapi').builtin({show_inherited = false})
-```
-
 ## Configuration Options
 
 The following options can be configured in the telescope setup:
@@ -108,6 +110,7 @@ A: Make sure you have the appropriate language parser installed for treesitter:
 
 **Q: Some inherited members are missing**  
 A: The plugin requires proper parsing of the inheritance hierarchy. Ensure your project structure allows the plugin to find parent classes and interfaces.
+A: Check that you have an LSP installed and attached to the current buffer. It may take a few seconds since you open the file.
 
 ## Contributing
 
@@ -119,4 +122,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch
 5. Submit a pull request
 
-For adding support for a new language, check the `lua/clapi/parser/` directory for examples.
+For adding support for a new language, check the following folders for examples: 
+- `lua/clapi/parser/`: Specific parser logic for each language.
+- `queries/`: Treesitter queries for each language.
