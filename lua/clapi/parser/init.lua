@@ -4,6 +4,15 @@ local tsparsers = require("nvim-treesitter.parsers")
 local async = require("plenary.async")
 local lsp = require("clapi.lsp")
 
+--- Keeps track of the analyzed files to avoid infinite recursion
+local files_analyzed = {}
+
+--- We clear the table to reset the analyzed files.
+--- This is important because the value persist between builtint executions
+local function clear_files_analyzed()
+	files_analyzed = {}
+end
+
 ---@class ParserModule
 local M = {}
 
@@ -110,6 +119,14 @@ local get_parent_file = async.wrap(function(opts, callback)
 
 				local filepath =
 					lsp.get_file_from_position({ bufnr = opts.bufnr, position = { character = char, line = line } })
+
+				if files_analyzed[filepath] then
+					callback(nil)
+					return
+				end
+
+				files_analyzed[filepath] = true
+
 				if not filepath or filepath == "" then
 					-- error already printed in get_file_from_position
 					callback(nil)
@@ -312,9 +329,11 @@ M.parse_file = async.wrap(function(opts, callback)
 				end
 			end
 
+			clear_files_analyzed()
 			callback(result)
 		end)
 	else
+		clear_files_analyzed()
 		callback(result)
 	end
 end, 2)
