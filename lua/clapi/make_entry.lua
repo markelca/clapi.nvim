@@ -77,7 +77,7 @@ function M.gen_from_lsp_symbols(opts)
 		hl_chars = { ["["] = "TelescopeBorder", ["]"] = "TelescopeBorder" },
 		items = display_items,
 	})
-	local type_highlight = vim.F.if_nil(opts.symbol_highlights or lsp_type_highlight)
+	local type_highlight = opts.symbol_highlights or lsp_type_highlight
 
 	---Create display for an entry
 	---@param entry table The entry to display

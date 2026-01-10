@@ -15,7 +15,7 @@ function utils.notify(funname, opts)
 	end
 	local notify_fn = opts.once and vim.notify_once or vim.notify
 	notify_fn(string.format("[clapi.%s]: %s", funname, opts.msg), level, {
-		title = "telescope.nvim",
+		title = "clapi.nvim",
 	})
 end
 

@@ -1,1 +1,1 @@
-return require("lua/telescope/_extensions/clapi.lua")
+return require("telescope._extensions.clapi")
