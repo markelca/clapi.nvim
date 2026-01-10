@@ -47,7 +47,7 @@ describe("notify", function()
 		assert(msg_received == "[clapi.test_func]: test message", "Message format is incorrect")
 		assert(level_received == vim.log.levels.INFO, "Level is incorrect")
 		assert(type(opts_received) == "table", "Options should be a table")
-		assert(opts_received.title == "telescope.nvim", "Title is incorrect")
+		assert(opts_received.title == "clapi.nvim", "Title is incorrect")
 	end)
 
 	it("should use vim.notify_once when once option is true", function()

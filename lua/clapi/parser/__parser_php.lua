@@ -76,7 +76,6 @@ function PhpParser.parse_property(node, start_col, start_row, opts)
 
 	if not prop_parent then
 		error("Couldn't find the parent for the property")
-		return
 	end
 
 	local visibility = PhpParser.get_visibility(prop_parent, opts.bufnr)
